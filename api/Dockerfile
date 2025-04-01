@@ -10,4 +10,4 @@ ADD . .
 RUN npm install
  
 # Run script uses standard ways to run the application
-CMD npm run -d start --port 8080
+CMD npm run -d start --port 3001

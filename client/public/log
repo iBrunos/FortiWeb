@@ -1,0 +1,54 @@
+Cloning "https://github.com/iBrunos/FortiWeb.git" ...
+	Commit:	26ba1f14c27ad92fc9b5184ac683bc1f488ca496 (Funcionando back e front)
+	Author:	Bruno Seixas <seixasbru@gmail.com>
+	Date:	Tue Apr 1 10:33:45 2025 -0300
+time="2025-04-01T18:44:14Z" level=info msg="Not using native diff for overlay, this may cause degraded performance for building images: kernel has CONFIG_OVERLAY_FS_REDIRECT_DIR enabled"
+I0401 18:44:14.314597       1 defaults.go:112] Defaulting to storage driver "overlay" with options [mountopt=metacopy=on].
+Caching blobs under "/var/cache/blobs".
+Trying to pull image-registry.openshift-image-registry.svc:5000/openshift/nodejs@sha256:a04c679260f0925557fa7e2f5dc464a50f4ee1ae0f8c1065960574f4e1149de0...
+Getting image source signatures
+Copying blob sha256:09d570adb2a5e6d01e283cb2d576d6e5c488512cce3ffd471627bc5d864dce49
+Copying blob sha256:5025173ec0b35686a33458b367c2a6e898c824f57a07925c25d26a0cfb5f2e50
+Copying blob sha256:3333307dcd2e4279579646a05a5f99082a61a20906175240445b0e15f73b6d6e
+Copying blob sha256:9b574cadf9a4d8eebceeecb58fa575d15503b8ecf918836bf044277d1a41c3f8
+Copying config sha256:bad8fcbf43bff6048045ec1e9ae47236d7aa072c969e6de58e5f5e9e90485104
+Writing manifest to image destination
+Generating dockerfile with builder image image-registry.openshift-image-registry.svc:5000/openshift/nodejs@sha256:a04c679260f0925557fa7e2f5dc464a50f4ee1ae0f8c1065960574f4e1149de0
+Adding transient rw bind mount for /run/secrets/rhsm
+STEP 1/9: FROM image-registry.openshift-image-registry.svc:5000/openshift/nodejs@sha256:a04c679260f0925557fa7e2f5dc464a50f4ee1ae0f8c1065960574f4e1149de0
+STEP 2/9: LABEL "io.openshift.build.source-context-dir"="/api"       "io.openshift.build.image"="image-registry.openshift-image-registry.svc:5000/openshift/nodejs@sha256:a04c679260f0925557fa7e2f5dc464a50f4ee1ae0f8c1065960574f4e1149de0"       "io.openshift.build.commit.author"="Bruno Seixas <seixasbru@gmail.com>"       "io.openshift.build.commit.date"="Tue Apr 1 10:33:45 2025 -0300"       "io.openshift.build.commit.id"="26ba1f14c27ad92fc9b5184ac683bc1f488ca496"       "io.openshift.build.commit.ref"="main"       "io.openshift.build.commit.message"="Funcionando back e front"       "io.openshift.build.source-location"="https://github.com/iBrunos/FortiWeb.git"
+STEP 3/9: ENV OPENSHIFT_BUILD_NAME="forti-web-api-1"     OPENSHIFT_BUILD_NAMESPACE="manutencao"     OPENSHIFT_BUILD_SOURCE="https://github.com/iBrunos/FortiWeb.git"     OPENSHIFT_BUILD_COMMIT="26ba1f14c27ad92fc9b5184ac683bc1f488ca496"
+STEP 4/9: USER root
+STEP 5/9: COPY upload/src /tmp/src
+STEP 6/9: RUN chown -R 1001:0 /tmp/src
+STEP 7/9: USER 1001
+STEP 8/9: RUN /usr/libexec/s2i/assemble
+---> Installing application source ...
+---> Installing all dependencies
+npm error code ERESOLVE
+npm error ERESOLVE unable to resolve dependency tree
+npm error
+npm error While resolving: backend@0.0.1
+npm error Found: @nestjs/common@9.4.3
+npm error node_modules/@nestjs/common
+npm error   @nestjs/common@"^9.0.0" from the root project
+npm error
+npm error Could not resolve dependency:
+npm error peer @nestjs/common@"^10.0.0 || ^11.0.0" from @nestjs/mapped-types@2.1.0
+npm error node_modules/@nestjs/mapped-types
+npm error   @nestjs/mapped-types@"^2.0.4" from the root project
+npm error
+npm error Fix the upstream dependency conflict, or retry
+npm error this command with --force or --legacy-peer-deps
+npm error to accept an incorrect (and potentially broken) dependency resolution.
+npm error
+npm error
+npm error For a full report see:
+npm error /opt/app-root/src/.npm/_logs/2025-04-01T18_44_20_533Z-eresolve-report.txt
+npm notice
+npm notice New major version of npm available! 10.8.2 -> 11.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.2.0
+npm notice To update run: npm install -g npm@11.2.0
+npm notice
+npm error A complete log of this run can be found in: /opt/app-root/src/.npm/_logs/2025-04-01T18_44_20_533Z-debug-0.log
+error: build error: building at STEP "RUN /usr/libexec/s2i/assemble": while running runtime: exit status 1
