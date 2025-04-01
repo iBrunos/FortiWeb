@@ -13,7 +13,8 @@ async function bootstrap() {
 
     app.enableCors({
       origin: [
-        'http://localhost:3000'
+        'http://localhost:3000',
+        'https://fortiweb.salvador.ba.gov.br'
       ], // Lista de origens permitidas
       methods: 'GET, POST, PUT, DELETE, PATCH',
       allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization',
@@ -22,7 +23,7 @@ async function bootstrap() {
     await app.listen(port);
     console.log(
       `LOCAL:  200 🟢 | Server running locally on http://localhost:${port}/
-      DEPLOY: 200 🟢 | Server deployed at https://api-bip.salvador.ba.gov.br
+      DEPLOY: 200 🟢 | Server deployed at https://fortiweb.salvador.ba.gov.br
       Call support for help ONLY IF necessary.
       `,
     );
