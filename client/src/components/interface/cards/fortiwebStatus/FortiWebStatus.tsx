@@ -37,29 +37,31 @@ const FortiWebStatus = () => {
   }, []);
 
   return (
-    <div className="bg-gray-900 text-white p-6 rounded-2xl shadow-lg w-[70rem] h-[20rem]">
-      <h2 className="text-3xl font-bold mb-4">FortiWeb Status</h2>
-      <div className="space-y-3">
-        {(Object.keys(data) as Array<keyof FortiWebStatusData>).filter(key => key !== "tcp_concurrent_connection").map((key) => (
-          <div key={key}>
-            <div className="flex justify-between">
-              <span>{key.charAt(0).toUpperCase() + key.slice(1)}:</span>
-              <span className="font-semibold">{data[key]}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 overflow-hidden">
-              <div
-                className={`bg-blue-600 h-2.5 rounded-full transition-all duration-1000 ${loaded ? '' : 'w-0'}`}
-                style={{ width: `${data[key]}%` }}
-              ></div>
-            </div>
+<div className="bg-gray-900 text-white p-6 rounded-2xl shadow-lg w-full max-w-4xl h-auto md:h-[20rem]">
+  <h2 className="text-xl md:text-3xl font-bold mb-4 text-center">FortiWeb Status</h2>
+  <div className="space-y-3">
+    {(Object.keys(data) as Array<keyof FortiWebStatusData>)
+      .filter((key) => key !== "tcp_concurrent_connection")
+      .map((key) => (
+        <div key={key}>
+          <div className="flex justify-between text-sm md:text-base">
+            <span>{key.charAt(0).toUpperCase() + key.slice(1)}:</span>
+            <span className="font-semibold">{data[key]}%</span>
           </div>
-        ))}
-        <div className="flex justify-between mt-3">
-          <span>Conexões Ativas:</span>
-          <span className="font-semibold">{data.tcp_concurrent_connection}</span>
+          <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 overflow-hidden">
+            <div
+              className={`bg-blue-600 h-2.5 rounded-full transition-all duration-1000 ${loaded ? "" : "w-0"}`}
+              style={{ width: `${data[key]}%` }}
+            ></div>
+          </div>
         </div>
-      </div>
+      ))}
+    <div className="flex justify-between mt-3 text-sm md:text-base">
+      <span>Conexões Ativas:</span>
+      <span className="font-semibold">{data.tcp_concurrent_connection}</span>
     </div>
+  </div>
+</div>
   );
 };
 

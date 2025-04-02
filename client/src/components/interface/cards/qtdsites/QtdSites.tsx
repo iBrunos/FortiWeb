@@ -66,50 +66,33 @@ const QtdSites: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex flex-col">
-      <button
-        title="Atualizar dados"
-        onClick={fetchData}
-        className="absolute  top-10 right-10 px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600"
-      >
-        <RxUpdate />
-      </button>
+<div className="flex flex-col items-center">
+  <button
+    title="Atualizar dados"
+    onClick={fetchData}
+    className="fixed top-4 right-4 px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600"
+  >
+    <RxUpdate />
+  </button>
 
-      <div className="flex gap-6 mt-6">
-        <div className="flex flex-col rounded-3xl bg-slate-800 shadow-sm max-w-xs p-8 my-6 border border-slate-600">
-          <div className="pb-8 m-0 mb-8 text-center text-slate-100 border-b border-slate-600">
-            <p className="text-2xl uppercase font-semibold text-slate-300">
-              Sites via CRP
-            </p>
-            <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-6xl">
-              {totalCRP !== null ? totalCRP : "N/A"}
-            </h1>
-          </div>
-        </div>
-
-        <div className="flex flex-col rounded-3xl bg-slate-800 shadow-sm max-w-xs p-8 my-6 border border-slate-600">
-          <div className="pb-8 m-0 mb-8 text-center text-slate-100 border-b border-slate-600">
-            <p className="text-2xl uppercase font-semibold text-slate-300">
-              Sites via PH
-            </p>
-            <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-6xl">
-              {totalPH !== null ? totalPH : "N/A"}
-            </h1>
-          </div>
-        </div>
-
-        <div className="flex flex-col rounded-3xl bg-slate-800 shadow-sm max-w-xs p-8 my-6 border border-slate-600">
-          <div className="pb-8 m-0 mb-8 text-center text-slate-100 border-b border-slate-600">
-            <p className="text-2xl uppercase font-semibold text-slate-300">
-              Total de Sites
-            </p>
-            <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-6xl">
-              {totalPH !== null && totalCRP !== null ? totalPH + totalCRP : "N/A"}
-            </h1>
-          </div>
+  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+    {[ 
+      { title: "Sites via CRP", value: totalCRP },
+      { title: "Sites via PH", value: totalPH },
+      { title: "Total de Sites", value: totalPH !== null && totalCRP !== null ? totalPH + totalCRP : "N/A" }
+    ].map((item, index) => (
+      <div key={index} className="flex flex-col rounded-3xl bg-slate-800 shadow-sm w-full md:max-w-xs p-6 md:p-8 my-4 border border-slate-600">
+        <div className="pb-6 md:pb-8 m-0 mb-6 md:mb-8 text-center text-slate-100 border-b border-slate-600">
+          <p className="text-lg md:text-2xl uppercase font-semibold text-slate-300">{item.title}</p>
+          <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-4xl md:text-6xl">
+            {item.value !== null ? item.value : "N/A"}
+          </h1>
         </div>
       </div>
-    </div>
+    ))}
+  </div>
+</div>
+
   );
 };
 
