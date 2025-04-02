@@ -18,7 +18,7 @@ const FortiWebStatus = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch("http://localhost:3001/fortiwebstatus/status"); // Ajuste a URL conforme necessário
+      const response = await fetch("https://fortiwebapi.salvador.ba.gov.br/fortiwebstatus/status"); // Ajuste a URL conforme necessário
       if (!response.ok) {
         throw new Error("Erro ao buscar dados");
       }

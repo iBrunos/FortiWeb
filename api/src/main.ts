@@ -13,7 +13,6 @@ async function bootstrap() {
 
     app.enableCors({
       origin: [
-        '*',
         'http://localhost:3000',
         'https://fortiweb.salvador.ba.gov.br'
       ], // Lista de origens permitidas

@@ -8,13 +8,13 @@ const QtdSites: React.FC = () => {
   const [totalCRP, setTotalCRP] = useState<number | null>(null);
   const [totalPH, setTotalPH] = useState<number | null>(null);
   const [totalSites, setTotalSites] = useState<number | null>(null);
-
+ /*
   const API_URL_CR = "http://localhost:3001/crp/total"; // Endpoint do backend para CRP
   const API_URL_PH = "http://localhost:3001/ph/total"; // Endpoint do backend para PH
-  /*
+ */
   const API_URL_CR = "https://fortiwebapi.salvador.ba.gov.br/crp/total"; // Endpoint do backend para CRP
   const API_URL_PH = "https://fortiwebapi.salvador.ba.gov.br/ph/total"; // Endpoint do backend para PH
-  */
+ 
   const fetchData = async () => {
     try {
       // Fetch para CRP
