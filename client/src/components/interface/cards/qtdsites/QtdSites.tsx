@@ -9,9 +9,12 @@ const QtdSites: React.FC = () => {
   const [totalPH, setTotalPH] = useState<number | null>(null);
   const [totalSites, setTotalSites] = useState<number | null>(null);
 
-  const API_URL_CR = "http://fortiwebapi.salvador.ba.gov.br/crp/total"; // Endpoint do backend para CRP
-  const API_URL_PH = "http://fortiwebapi.salvador.ba.gov.br/ph/total"; // Endpoint do backend para PH
-
+  const API_URL_CR = "http://localhost:3001/crp/total"; // Endpoint do backend para CRP
+  const API_URL_PH = "http://localhost:3001/ph/total"; // Endpoint do backend para PH
+  /*
+  const API_URL_CR = "https://fortiwebapi.salvador.ba.gov.br/crp/total"; // Endpoint do backend para CRP
+  const API_URL_PH = "https://fortiwebapi.salvador.ba.gov.br/ph/total"; // Endpoint do backend para PH
+  */
   const fetchData = async () => {
     try {
       // Fetch para CRP
@@ -63,10 +66,7 @@ const QtdSites: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center">
-      <h1 className="text-6xl uppercase font-bold mb-1 mt-10 text-slate-300">WAF</h1>
-      <h1 className="text-2xl font-bold mb-6 mt-1 text-slate-300">Web Application Firewall</h1>
-
+    <div className="flex flex-col">
       <button
         title="Atualizar dados"
         onClick={fetchData}
@@ -74,15 +74,8 @@ const QtdSites: React.FC = () => {
       >
         <RxUpdate />
       </button>
-      <Image
-        className="absolute top-[70rem] right-10"
-        src="/logo_cogel.png" // Certifique-se de que o caminho da imagem está correto
-        alt="Background Image"
-        width={100} // Ajuste conforme necessário
-        height={100} // Ajuste conforme necessário
-      />
 
-      <div className="flex justify-center gap-6 mt-6">
+      <div className="flex gap-6 mt-6">
         <div className="flex flex-col rounded-3xl bg-slate-800 shadow-sm max-w-xs p-8 my-6 border border-slate-600">
           <div className="pb-8 m-0 mb-8 text-center text-slate-100 border-b border-slate-600">
             <p className="text-2xl uppercase font-semibold text-slate-300">
@@ -116,14 +109,6 @@ const QtdSites: React.FC = () => {
           </div>
         </div>
       </div>
-      <Image
-      className="opacity-40"
-        src="/waf.png" // Certifique-se de que o caminho da imagem está correto
-        alt="Background Image"
-        width={500} // Ajuste conforme necessário
-        height={500} // Ajuste conforme necessário
-      />
-
     </div>
   );
 };
