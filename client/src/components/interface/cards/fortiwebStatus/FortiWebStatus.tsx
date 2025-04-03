@@ -38,7 +38,7 @@ const FortiWebStatus = () => {
 
   return (
 <div className="bg-gray-900 text-white p-6 rounded-2xl shadow-lg w-full max-w-4xl h-auto md:h-[20rem]">
-  <h2 className="text-xl md:text-3xl font-bold mb-4 text-center">FortiWeb Status</h2>
+  <h2 className="text-xl md:text-3xl font-bold mb-4 text-center">FortiWeb Status 5s</h2>
   <div className="space-y-3">
     {(Object.keys(data) as Array<keyof FortiWebStatusData>)
       .filter((key) => key !== "tcp_concurrent_connection")
