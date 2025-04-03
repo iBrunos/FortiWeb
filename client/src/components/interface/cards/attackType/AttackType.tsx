@@ -32,7 +32,7 @@ export default function AttackType() {
   // Efeito para buscar os dados e atualizar a cada 5s
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 50000); // Atualiza a cada 10s
+    const interval = setInterval(fetchData, 10000); // Atualiza a cada 10s
     return () => clearInterval(interval); // Limpa o intervalo ao desmontar
   }, []);
 
