@@ -17,7 +17,7 @@ export default function AttackType() {
 
   // Função para buscar os dados
   const fetchData = () => {
-    fetch("http://localhost:3001/attacktype/list")
+    fetch("https://fortiwebapi.salvador.ba.gov.br/attacktype/list")
       .then((res) => res.json())
       .then((result) => {
         setData(result);
