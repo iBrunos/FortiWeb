@@ -1,6 +1,7 @@
 "use client";
 import QtdSites from "@/components/interface/cards/qtdsites/QtdSites";
 import FortiWebStatus from "@/components/interface/cards/fortiwebStatus/FortiWebStatus";
+import AttackType from "@/components/interface/cards/attackType/AttackType";
 import Image from "next/image";
 
 export default function Home() {
@@ -19,6 +20,7 @@ export default function Home() {
       <div className="z-10 flex flex-col items-center space-y-6">
         <FortiWebStatus />
         <QtdSites />
+        <AttackType />
       </div>
 
       {/* Logo fixa no canto inferior direito */}

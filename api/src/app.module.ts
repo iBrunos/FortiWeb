@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CrpModule } from './crp/crp.module'; // Importe corretamente o módulo Crp
 import { PhModule } from './ph/ph.module'; // Importe corretamente o módulo ph
 import { FortiWebStatusModule } from './fortiwebstatus/fortiwebstatus.module'; // Importe corretamente o módulo Crp
+import { AttackTypeModule } from './attacktype/attacktype.module'; // Importe corretamente o módulo Crp
 
 
 @Module({
@@ -15,7 +16,8 @@ import { FortiWebStatusModule } from './fortiwebstatus/fortiwebstatus.module'; /
     }),
     CrpModule, // Aqui você importa o CrpModule corretamente
     PhModule,
-    FortiWebStatusModule
+    FortiWebStatusModule,
+    AttackTypeModule
   ],
   controllers: [AppController],
   providers: [AppService],
