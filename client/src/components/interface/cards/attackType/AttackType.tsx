@@ -2,20 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
+import { GoTriangleDown } from "react-icons/go";
 
 interface AttackType {
   type: string;
   count: number;
 }
 
-// Paleta de cores para o gráfico
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A28DFF", "#FF6699"];
 
 export default function AttackType() {
   const [data, setData] = useState<AttackType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [intervalTime, setIntervalTime] = useState(10000);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // Função para buscar os dados
   const fetchData = () => {
     fetch("https://fortiwebapi.salvador.ba.gov.br/attacktype/list")
       .then((res) => res.json())
@@ -29,15 +30,47 @@ export default function AttackType() {
       });
   };
 
-  // Efeito para buscar os dados e atualizar a cada 5s
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 10000); // Atualiza a cada 10s
-    return () => clearInterval(interval); // Limpa o intervalo ao desmontar
-  }, []);
+    const interval = setInterval(fetchData, intervalTime);
+    return () => clearInterval(interval);
+  }, [intervalTime]);
+
+  const intervals = [10000, 30000, 60000, 300000, 3600000];
+  const intervalLabels = ["10 Segundos", "30 Segundos", "1 Minuto", "5 Minutos", "1 Hora"];
 
   return (
-    <div className="p-6 bg-gray-900 text-white rounded-lg shadow-lg w-full">
+    <div className="p-6 bg-gray-900 text-white rounded-lg shadow-lg w-full relative">
+      {/* Dropdown de atualização */}
+      <div className="absolute top-4 right-4">
+        <button
+          onClick={() => setDropdownOpen(!dropdownOpen)}
+          className="text-white bg-slate-900 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-2xl text-sm px-5 py-2.5 flex items-center gap-1"
+        >
+          Atualizar: {intervalLabels[intervals.indexOf(intervalTime)]}
+          <GoTriangleDown />
+        </button>
+        {dropdownOpen && (
+          <div className="absolute right-0 mt-2 z-10 bg-gray-800 divide-y divide-gray-100 rounded-2xl border-2 shadow-sm w-44 dark:bg-gray-700">
+            <ul className="py-2 text-sm text-white dark:text-gray-200">
+              {intervals.map((time, index) => (
+                <li key={index}>
+                  <button
+                    onClick={() => {
+                      setIntervalTime(time);
+                      setDropdownOpen(false);
+                    }}
+                    className="block px-4 py-2 w-full text-left hover:bg-gray-100 hover:text-black dark:hover:bg-gray-600 dark:hover:text-white"
+                  >
+                    {intervalLabels[index]}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
       <h2 className="text-2xl font-bold text-center mb-4">Ataques por Tipo</h2>
 
       {loading ? (
