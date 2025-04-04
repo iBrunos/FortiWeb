@@ -54,8 +54,8 @@ export default function Home() {
         className="absolute bottom-10 top-10 opacity-60 hidden md:block"
         src="/logo_cogel.png"
         alt="Logo Cogel"
-        width={100}
-        height={100}
+        width={150}
+        height={150}
       />
     </div>
   );

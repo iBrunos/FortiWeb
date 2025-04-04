@@ -43,7 +43,7 @@ const QtdSites: React.FC = () => {
       {/* Dropdown de atualização */}
       
       <h2 className="text-2xl font-bold text-center mb-4">Quatitativo de Sites</h2>
-      <div className="absolute right-1 bottom-[20rem]">
+      <div className="absolute right-1 bottom-[15rem]">
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className="text-white bg-slate-900 hover:bg-blue-800 focus:ring-4 rounded-2xl focus:outline-none focus:ring-blue-300 font-medium  text-sm px-5 py-2.5 flex items-center gap-1"
@@ -81,8 +81,8 @@ const QtdSites: React.FC = () => {
         ].map((item, index) => (
           <div key={index} className="flex flex-col rounded-3xl bg-slate-800 shadow-sm w-full md:max-w-xs p-6 md:p-8 my-4 border border-slate-600">
             <div className="pb-6 md:pb-8 m-0 mb-6 md:mb-8 text-center text-slate-100 border-b border-slate-600">
-              <p className="text-lg md:text-2xl uppercase font-semibold text-slate-300">{item.title}</p>
-              <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-4xl md:text-6xl">
+              <p className=" uppercase font-semibold text-slate-300">{item.title}</p>
+              <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-2xl md:text-4xl">
                 {item.value !== null ? item.value : "N/A"}
               </h1>
             </div>

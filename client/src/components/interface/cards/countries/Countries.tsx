@@ -41,7 +41,7 @@ const CountriesTable: React.FC = () => {
     <div className="flex flex-col p-4 bg-gray-900 rounded-2xl text-white items-center w-full px-4">
       {/* Dropdown de atualização */}
       <h2 className="text-2xl font-bold text-center mb-4">Origens dos ataques</h2>
-      <div className="self-end mb-4 relative right-1 bottom-[3rem]">
+      <div className="self-end mb-4 relative right-1 bottom-[rem]">
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className="text-white bg-slate-900 rounded-2xl hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium text-sm px-5 py-2.5 flex items-center gap-1"
