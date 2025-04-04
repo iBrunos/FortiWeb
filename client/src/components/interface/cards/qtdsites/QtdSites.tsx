@@ -42,7 +42,7 @@ const QtdSites: React.FC = () => {
     <div className="flex flex-col items-center relative">
       {/* Dropdown de atualização */}
       
-      <h2 className="text-2xl font-bold text-center mb-4">Quatitativo de Sites</h2>
+      <h2 className="text-2xl font-bold text-center mb-4">Quantitativo de Sites</h2>
       <div className="absolute right-1 bottom-[15rem]">
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}

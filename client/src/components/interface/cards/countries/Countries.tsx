@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { GoTriangleDown } from "react-icons/go";
+import { GoTriangleDown, GoTriangleRight, GoTriangleLeft } from "react-icons/go";
 import { FaHouseLaptop } from "react-icons/fa6";
 
 interface CountryThreat {
@@ -14,6 +14,8 @@ const CountriesTable: React.FC = () => {
   const [countryData, setCountryData] = useState<CountryThreat[]>([]);
   const [intervalTime, setIntervalTime] = useState(10000);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const API_URL_COUNTRIES = "https://fortiwebapi.salvador.ba.gov.br/countries/list";
 
@@ -37,10 +39,14 @@ const CountriesTable: React.FC = () => {
   const intervals = [10000, 30000, 60000, 300000, 3600000];
   const intervalLabels = ["10 Segundos", "30 Segundos", "1 Minuto", "5 Minutos", "1 Hora"];
 
+  const totalPages = Math.ceil(countryData.length / itemsPerPage);
+  const paginatedData = countryData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   return (
     <div className="flex flex-col p-4 bg-gray-900 rounded-2xl text-white items-center w-full px-4">
       {/* Dropdown de atualização */}
-      <h2 className="text-2xl font-bold text-center mb-4">Origens dos ataques</h2>
+      <h2 className="text-2xl font-bold text-center mb-">Origens dos ataques</h2>
+      <h2 className="text-center mb-4">(últimas 12 horas)</h2>
       <div className="self-end mb-4 relative right-1 bottom-[rem]">
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -80,7 +86,7 @@ const CountriesTable: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {countryData.map((country, index) => (
+            {paginatedData.map((country, index) => (
               <tr key={index} className="border-b border-gray-600 bg-gray-800 hover:bg-gray-700 transition">
                 <td className="px-6 py-4 flex items-center gap-2">
                   {country.country.toLowerCase() === "reserved" ? (
@@ -95,6 +101,27 @@ const CountriesTable: React.FC = () => {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Paginação */}
+      <div className="flex justify-center mt-4 space-x-2">
+        <button
+          title="Anterior"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 flex items-center gap-2"
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+        >
+          <GoTriangleLeft />
+        </button>
+        <span className="px-4 py-2 bg-gray-700 rounded-lg">{currentPage} de {totalPages}</span>
+        <button
+          title="Próxima"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 flex items-center gap-2"
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+        >
+          <GoTriangleRight />
+        </button>
       </div>
     </div>
   );
