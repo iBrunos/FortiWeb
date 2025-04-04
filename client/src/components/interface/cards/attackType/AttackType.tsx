@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { GoTriangleDown } from "react-icons/go";
-
+import { IoIosSettings } from "react-icons/io";
 interface AttackType {
   type: string;
   count: number;
@@ -47,7 +47,7 @@ export default function AttackType() {
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className="text-white bg-slate-900 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-2xl text-sm px-5 py-2.5 flex items-center gap-1"
         >
-          Atualizar: {intervalLabels[intervals.indexOf(intervalTime)]}
+          <IoIosSettings />
           <GoTriangleDown />
         </button>
         {dropdownOpen && (
