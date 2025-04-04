@@ -40,7 +40,7 @@ export default function AttackType() {
   const intervalLabels = ["10 Segundos", "30 Segundos", "1 Minuto", "5 Minutos", "1 Hora"];
 
   return (
-    <div className="p-6 bg-gray-900 text-white rounded-lg shadow-lg w-full relative">
+    <div className="p-6 bg-gray-900 text-white rounded-2xl shadow-lg w-full relative">
       {/* Dropdown de atualização */}
       <div className="absolute top-4 right-4">
         <button

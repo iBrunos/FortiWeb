@@ -6,7 +6,7 @@ import { CrpModule } from './crp/crp.module'; // Importe corretamente o módulo 
 import { PhModule } from './ph/ph.module'; // Importe corretamente o módulo ph
 import { FortiWebStatusModule } from './fortiwebstatus/fortiwebstatus.module'; // Importe corretamente o módulo Crp
 import { AttackTypeModule } from './attacktype/attacktype.module'; // Importe corretamente o módulo Crp
-
+import { CountriesModule } from './countries/countries.module';
 
 @Module({
   imports: [
@@ -17,7 +17,8 @@ import { AttackTypeModule } from './attacktype/attacktype.module'; // Importe co
     CrpModule, // Aqui você importa o CrpModule corretamente
     PhModule,
     FortiWebStatusModule,
-    AttackTypeModule
+    AttackTypeModule,
+    CountriesModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -41,7 +41,9 @@ const QtdSites: React.FC = () => {
   return (
     <div className="flex flex-col items-center relative">
       {/* Dropdown de atualização */}
-      <div className="absolute right-1 bottom-[17rem]">
+      
+      <h2 className="text-2xl font-bold text-center mb-4">Quatitativo de Sites</h2>
+      <div className="absolute right-1 bottom-[20rem]">
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className="text-white bg-slate-900 hover:bg-blue-800 focus:ring-4 rounded-2xl focus:outline-none focus:ring-blue-300 font-medium  text-sm px-5 py-2.5 flex items-center gap-1"
@@ -73,8 +75,8 @@ const QtdSites: React.FC = () => {
       {/* Cards de dados */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 ">
         {[ 
-          { title: "Sites via CR", value: totalCRP },
-          { title: "Sites via PH", value: totalPH },
+          { title: "Via CRP", value: totalCRP },
+          { title: "Via PH", value: totalPH },
           { title: "Total", value: totalPH !== null && totalCRP !== null ? totalPH + totalCRP : "N/A" }
         ].map((item, index) => (
           <div key={index} className="flex flex-col rounded-3xl bg-slate-800 shadow-sm w-full md:max-w-xs p-6 md:p-8 my-4 border border-slate-600">
