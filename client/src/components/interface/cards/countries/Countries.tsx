@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { GoTriangleDown, GoTriangleRight, GoTriangleLeft } from "react-icons/go";
 import { FaHouseLaptop } from "react-icons/fa6";
 import { IoIosSettings } from "react-icons/io";
+import { FaCheck } from "react-icons/fa";
 
 interface CountryThreat {
   country: string;
@@ -72,9 +73,10 @@ const CountriesTable: React.FC = () => {
                       setIntervalTime(time);
                       setDropdownOpen(false);
                     }}
-                    className="block px-4 py-2 w-full text-left hover:bg-gray-100 hover:text-black dark:hover:bg-gray-600 dark:hover:text-white"
+                    className=" px-4 py-2 w-full text-left hover:bg-gray-100 hover:text-black dark:hover:bg-gray-600 dark:hover:text-white flex items-center justify-between"
                   >
-                    {intervalLabels[index]}
+                    <span>{intervalLabels[index]}</span>
+                    {intervalTime === time && <FaCheck className="text-green-400 ml-2" />}
                   </button>
                 </li>
               ))}

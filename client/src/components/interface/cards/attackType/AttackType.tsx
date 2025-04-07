@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { GoTriangleDown } from "react-icons/go";
 import { IoIosSettings } from "react-icons/io";
+import { FaCheck } from "react-icons/fa";
 
 interface AttackType {
   type: string;
@@ -61,9 +62,10 @@ export default function AttackType() {
                       setIntervalTime(time);
                       setDropdownOpen(false);
                     }}
-                    className="block px-4 py-2 w-full text-left hover:bg-gray-100 hover:text-black dark:hover:bg-gray-600 dark:hover:text-white"
+                    className="block px-4 py-2 w-full text-left hover:bg-gray-100 hover:text-black dark:hover:bg-gray-600 dark:hover:text-white flex items-center justify-between"
                   >
-                    {intervalLabels[index]}
+                    <span>{intervalLabels[index]}</span>
+                    {intervalTime === time && <FaCheck className="text-green-400 ml-2" />}
                   </button>
                 </li>
               ))}
@@ -71,7 +73,6 @@ export default function AttackType() {
           </div>
         )}
       </div>
-
       <h2 className="text-2xl font-bold text-center mb-4">Ataques por Tipo</h2>
 
       {loading ? (

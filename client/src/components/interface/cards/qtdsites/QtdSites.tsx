@@ -6,6 +6,7 @@ import { GoTriangleDown, GoTriangleLeft, GoTriangleRight } from "react-icons/go"
 import { IoClose } from "react-icons/io5";
 import { motion } from "framer-motion";
 import { IoIosSettings } from "react-icons/io";
+import { FaCheck } from "react-icons/fa";
 
 interface SiteData {
   crp: string;
@@ -101,9 +102,10 @@ const QtdSites: React.FC = () => {
                       setIntervalTime(time);
                       setDropdownOpen(false);
                     }}
-                    className="block px-4 py-2 w-full text-left hover:bg-gray-100 hover:text-black dark:hover:bg-gray-600 dark:hover:text-white"
+                    className="block px-4 py-2 w-full text-left hover:bg-gray-100 hover:text-black dark:hover:bg-gray-600 dark:hover:text-white flex items-center justify-between"
                   >
-                    {intervalLabels[index]}
+                    <span>{intervalLabels[index]}</span>
+                    {intervalTime === time && <FaCheck className="text-green-400 ml-2" />}
                   </button>
                 </li>
               ))}
