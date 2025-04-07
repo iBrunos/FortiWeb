@@ -42,7 +42,7 @@ const QtdSites: React.FC = () => {
         resPH.json(),
       ]);
 
-      setTotalCRP(dataCRP.total);
+      setTotalCRP(dataCRP);
       setTotalPH(dataPH.total);
     } catch (error) {
       console.error("Erro ao buscar CRP/PH:", error);
