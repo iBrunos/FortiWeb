@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { CrpService } from './crp.service';
 
 @Controller('crp')
@@ -10,9 +10,18 @@ export class CrpController {
     return this.crpService.getTotalContentRoutingPolicies();
   }
 
-  // 🔽 Nova rota para listar os match-expressions de cada CRP
   @Get('expressions')
-  getContentRoutingExpressions() {
-    return this.crpService.getContentRoutingExpressions();
+  getContentRoutingExpressions(
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
+    const parsedPage = parseInt(page);
+    const parsedLimit = parseInt(limit);
+
+    if (isNaN(parsedPage) || isNaN(parsedLimit)) {
+      throw new Error('Parâmetros "page" e "limit" são obrigatórios e devem ser números.');
+    }
+
+    return this.crpService.getContentRoutingExpressions(parsedPage, parsedLimit);
   }
 }

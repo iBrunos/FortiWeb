@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import { GoTriangleDown } from "react-icons/go";
 import { IoIosSettings } from "react-icons/io";
+
 interface AttackType {
   type: string;
   count: number;
@@ -47,7 +48,7 @@ export default function AttackType() {
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className="text-white bg-slate-900 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-2xl text-sm px-5 py-2.5 flex items-center gap-1"
         >
-          <IoIosSettings />
+          <IoIosSettings className="w-5 h-5" />
           <GoTriangleDown />
         </button>
         {dropdownOpen && (
@@ -74,7 +75,24 @@ export default function AttackType() {
       <h2 className="text-2xl font-bold text-center mb-4">Ataques por Tipo</h2>
 
       {loading ? (
-        <p className="text-center">Carregando...</p>
+        <div className="flex flex-col md:flex-row gap-6 animate-pulse">
+          {/* Skeleton da tabela */}
+          <div className="flex-1 space-y-4">
+            {[...Array(6)].map((_, idx) => (
+              <div key={idx} className="h-10 bg-gray-700 rounded w-full"></div>
+            ))}
+          </div>
+
+          {/* Skeleton do gráfico + legenda */}
+          <div className="flex-1 flex flex-col md:flex-row gap-4">
+            <div className="w-full md:w-2/3 h-72 bg-gray-700 rounded-lg" />
+            <div className="md:w-1/3 space-y-3 mt-6 md:mt-0">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-4 w-32 bg-gray-700 rounded" />
+              ))}
+            </div>
+          </div>
+        </div>
       ) : (
         <div className="flex flex-col md:flex-row gap-6">
           {/* Tabela */}

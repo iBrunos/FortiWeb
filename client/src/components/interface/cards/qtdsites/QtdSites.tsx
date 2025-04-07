@@ -21,11 +21,12 @@ const QtdSites: React.FC = () => {
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [siteData, setSiteData] = useState<SiteData[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalSites, setTotalSites] = useState(0);
+  const [isLoadingSites, setIsLoadingSites] = useState(false); // 🔽 novo estado
 
   const API_URL_CR = "https://fortiwebapi.salvador.ba.gov.br/crp/total";
   const API_URL_PH = "https://fortiwebapi.salvador.ba.gov.br/ph/total";
   const API_URL_SITES = "http://localhost:3002/crp/expressions";
-  /*const API_URL_SITES = "https://fortiwebapi.salvador.ba.gov.br/crp/expressions";*/
   const SITES_PER_PAGE = 15;
 
   const fetchData = async () => {
@@ -49,13 +50,15 @@ const QtdSites: React.FC = () => {
 
   const fetchSitesByPage = async (page: number) => {
     try {
-      const response = await fetch(`${API_URL_SITES}?page=${page}`, {
-        method: 'GET',
-      });
-      const data = await response.json();
-      setSiteData(data);
+      setIsLoadingSites(true); // 🔽 começa carregamento
+      const response = await fetch(`${API_URL_SITES}?page=${page}&limit=${SITES_PER_PAGE}`);
+      const result = await response.json();
+      setSiteData(result.data);
+      setTotalSites(result.total);
     } catch (error) {
       console.error("Erro ao buscar dados dos sites:", error);
+    } finally {
+      setIsLoadingSites(false); // 🔽 termina carregamento
     }
   };
 
@@ -66,26 +69,26 @@ const QtdSites: React.FC = () => {
   }, [intervalTime]);
 
   useEffect(() => {
-    if (popupOpen) {
+    if (popupOpen && selectedCard === "Via CRP") {
       fetchSitesByPage(currentPage);
     }
-  }, [currentPage, popupOpen]);
+  }, [currentPage, popupOpen, selectedCard]);
 
   const intervals = [60000, 300000, 600000, 1800000, 3600000];
   const intervalLabels = ["1 Minuto", "5 Minutos", "10 Minutos", "30 Minutos", "1 Hora"];
 
-  const totalPages = Math.ceil(300 / SITES_PER_PAGE); // Altere "300" se tiver a contagem total de sites real
+  const totalPages = Math.ceil(totalSites / SITES_PER_PAGE);
 
   return (
     <div className="flex flex-col items-center bg-gray-900 rounded-2xl relative">
-      <h2 className="text-2xl font-bold text-center mt-1 mb-4">Quantitativo de Sites</h2>
+      <h2 className="text-2xl font-bold text-center mt-2 mb-4">Quantitativo de Sites</h2>
 
       <div className="absolute right-1 bottom-[17rem]">
         <button
           onClick={() => setDropdownOpen(!dropdownOpen)}
           className="text-white bg-slate-900 hover:bg-blue-800 focus:ring-4 rounded-2xl focus:outline-none focus:ring-blue-300 font-medium text-sm px-5 py-2.5 flex items-center gap-1"
         >
-          <IoIosSettings />
+          <IoIosSettings className="w-5 h-5" />
           <GoTriangleDown />
         </button>
         {dropdownOpen && (
@@ -108,34 +111,48 @@ const QtdSites: React.FC = () => {
           </div>
         )}
       </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-        {[ 
+        {[
           { title: "Via CRP", value: totalCRP },
           { title: "Via PH", value: totalPH },
-          { title: "Total", value: totalPH !== null && totalCRP !== null ? totalPH + totalCRP : "N/A" }
+          {
+            title: "Total",
+            value: totalPH !== null && totalCRP !== null ? totalPH + totalCRP : null,
+          },
         ].map((item, index) => (
           <div
             key={index}
-            className="flex flex-col hover:bg-slate-600 rounded-3xl bg-slate-800 shadow-sm w-full md:max-w-xs p-6 md:p-8 my-4 border border-slate-600 cursor-pointer"
+            className={`flex flex-col ${item.value !== null ? "hover:bg-slate-600 cursor-pointer" : ""
+              } rounded-3xl bg-slate-800 shadow-sm w-full md:max-w-xs p-6 md:p-8 my-4 border border-slate-600`}
             onClick={() => {
-              setSelectedCard(item.title);
-              setPopupOpen(true);
-              setCurrentPage(1); // Resetar para página 1 ao abrir o popup
-              fetchSitesByPage(1);
+              if (item.value !== null) {
+                setSelectedCard(item.title);
+                setPopupOpen(true);
+                setCurrentPage(1);
+                if (item.title === "Via CRP") {
+                  fetchSitesByPage(1);
+                }
+              }
             }}
           >
             <div className="pb-6 md:pb-8 m-0 mb-6 md:mb-8 text-center text-slate-100 border-b border-slate-600">
               <p className="uppercase font-semibold text-slate-300">{item.title}</p>
-              <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-2xl md:text-4xl">
-                {item.value !== null ? item.value : "N/A"}
-              </h1>
+              {item.value !== null ? (
+                <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-2xl md:text-4xl">
+                  {item.value}
+                </h1>
+              ) : (
+                <div className="mt-4 flex justify-center">
+                  <div className="h-10 w-24 bg-gray-600 rounded animate-pulse" />
+                </div>
+              )}
             </div>
           </div>
         ))}
       </div>
 
-      {popupOpen && (
+
+      {popupOpen && selectedCard === "Via CRP" && (
         <motion.div
           initial={{ x: "-100%" }}
           animate={{ x: 0 }}
@@ -159,15 +176,31 @@ const QtdSites: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {siteData.map((site, index) => (
-                  <tr key={index} className="text-center bg-gray-800 hover:bg-gray-700">
-                    <td className="border border-gray-600 p-2">
-                      {(currentPage - 1) * SITES_PER_PAGE + index + 1}
-                    </td>
-                    <td className="border border-gray-600 p-2">{site.crp}</td>
-                    <td className="border border-gray-600 p-2">{site.matchExpressions.join(", ")}</td>
-                  </tr>
-                ))}
+                {isLoadingSites
+                  ? Array.from({ length: SITES_PER_PAGE }).map((_, i) => (
+                    <tr key={i} className="animate-pulse bg-gray-800">
+                      <td className="border border-gray-600 p-2">
+                        <div className="h-4 bg-gray-600 rounded w-3/4 mx-auto" />
+                      </td>
+                      <td className="border border-gray-600 p-2">
+                        <div className="h-4 bg-gray-600 rounded w-4/5 mx-auto" />
+                      </td>
+                      <td className="border border-gray-600 p-2">
+                        <div className="h-4 bg-gray-600 rounded w-full" />
+                      </td>
+                    </tr>
+                  ))
+                  : siteData.map((site, index) => (
+                    <tr key={index} className="text-center bg-gray-800 hover:bg-gray-700">
+                      <td className="border border-gray-600 p-2">
+                        {(currentPage - 1) * SITES_PER_PAGE + index + 1}
+                      </td>
+                      <td className="border border-gray-600 p-2">{site.crp}</td>
+                      <td className="border border-gray-600 p-2">
+                        {site.matchExpressions.join(", ")}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
 
@@ -181,7 +214,9 @@ const QtdSites: React.FC = () => {
                 >
                   <GoTriangleLeft />
                 </button>
-                <span className="px-4 py-2 bg-gray-700 rounded-lg">{currentPage} de {totalPages}</span>
+                <span className="px-4 py-2 bg-gray-700 rounded-lg">
+                  {currentPage} de {totalPages}
+                </span>
                 <button
                   title="Próxima"
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg disabled:opacity-50 flex items-center gap-2"

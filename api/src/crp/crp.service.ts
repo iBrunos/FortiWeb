@@ -16,7 +16,6 @@ export class CrpService {
     };
   }
 
-  // Retorna o total de CRPs com base na soma dos 'sz_content-routing-match-list'
   async getTotalContentRoutingPolicies(): Promise<number> {
     try {
       const response = await fetch(this.API_URL, {
@@ -46,10 +45,11 @@ export class CrpService {
   }
 
   async getContentRoutingExpressions(
-    page = 1,
-    limit = 15,
-  ): Promise<{ crp: string; matchExpressions: string[] }[]> {
+    page: number,
+    limit: number,
+  ): Promise<{ total: number; data: { crp: string; matchExpressions: string[] }[] }> {
     try {
+
       const response = await fetch(this.API_URL, {
         method: 'GET',
         headers: this.getHeaders(),
@@ -66,12 +66,14 @@ export class CrpService {
         throw new Error('A resposta não contém CRPs válidos.');
       }
   
-      // Paginação local
+      const allCrps = body.results;
+      const total = allCrps.length;
+  
       const startIndex = (page - 1) * limit;
       const endIndex = page * limit;
-      const paginatedResults = body.results.slice(startIndex, endIndex);
+      const paginatedResults = allCrps.slice(startIndex, endIndex);
   
-      const results = await Promise.all(
+      const data = await Promise.all(
         paginatedResults.map(async (item) => {
           const crpName = item.name;
           const detailUrl = `${this.MATCH_LIST_URL}?mkey=${encodeURIComponent(crpName)}`;
@@ -84,6 +86,7 @@ export class CrpService {
             });
   
             if (!detailResponse.ok) {
+              console.warn(`Erro ao buscar match-list de ${crpName}`);
               return { crp: crpName, matchExpressions: [] };
             }
   
@@ -94,17 +97,22 @@ export class CrpService {
               .map((match: any) => match['match-expression'])
               .filter((expr: string) => !!expr);
   
+  
             return { crp: crpName, matchExpressions: expressions };
           } catch (err) {
+            console.error(`Erro ao buscar expressões para ${crpName}:`, err.message);
             return { crp: crpName, matchExpressions: [] };
           }
         }),
       );
   
-      return results;
+      return {
+        total,
+        data,
+      };
     } catch (error) {
+      console.error('Erro em getContentRoutingExpressions:', error.message);
       throw new Error(`Erro ao buscar expressões de roteamento: ${error.message}`);
     }
   }
-  
 }
