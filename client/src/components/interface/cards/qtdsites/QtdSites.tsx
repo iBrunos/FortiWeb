@@ -27,7 +27,7 @@ const QtdSites: React.FC = () => {
 
   const API_URL_CR = "https://fortiwebapi.salvador.ba.gov.br/crp/total";
   const API_URL_PH = "https://fortiwebapi.salvador.ba.gov.br/ph/total";
-  const API_URL_SITES = "http://localhost:3002/crp/expressions";
+  const API_URL_SITES = "https://fortiwebapi.salvador.ba.gov.br/crp/expressions";
   const SITES_PER_PAGE = 15;
 
   const fetchData = async () => {
