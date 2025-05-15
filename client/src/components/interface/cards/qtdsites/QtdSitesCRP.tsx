@@ -28,7 +28,7 @@ const QtdSitesCRP: React.FC = () => {
 
   const intervals = [60000, 300000, 600000, 1800000, 3600000];
   const intervalLabels = ["1 Minuto", "5 Minutos", "10 Minutos", "30 Minutos", "1 Hora"];
-  const API_URL = "http://localhost:3001/crp/total";
+  const API_URL = "https://fortiwebapi.salvador.ba.gov.br/crp/total";
 
   const fetchFortiwebData = async () => {
     setLoading(true);
