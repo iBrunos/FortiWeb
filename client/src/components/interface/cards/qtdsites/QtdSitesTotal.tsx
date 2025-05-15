@@ -48,7 +48,7 @@ const fetchData = async () => {
   return (
     <div className="relative w-[100rem] md:max-w-xs">
       {/* Card */}
-      <div className="relative flex flex-col rounded-3xl bg-slate-800 shadow-sm w-[48rem] p-6 md:p-8 my-4 border border-white">
+      <div className="relative flex flex-col rounded-3xl bg-slate-800 shadow-sm w-[65rem] p-6 md:p-8 my-4 border border-white">
         
         {/* Botão de configuração */}
         <div className="absolute right-6 top-6 z-50">
@@ -83,7 +83,7 @@ const fetchData = async () => {
 
         {/* Conteúdo */}
         <div className="pb-6 md:pb-8 mb-6 md:mb-8 text-center text-slate-100 border-b border-slate-600">
-          <p className="uppercase font-bold text-white">TOTAL DE SITES</p>
+          <p className="uppercase font-bold text-4xl text-white">TOTAL DE SITES</p>
           <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-2xl md:text-4xl">
             {isLoading ? (
               <div className="w-20 h-8 bg-slate-700 animate-pulse rounded" />

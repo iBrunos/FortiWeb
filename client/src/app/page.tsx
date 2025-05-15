@@ -18,38 +18,43 @@ export default function Home() {
 
       {/* Títulos */}
       <div className="z-10 flex flex-col items-center text-center">
-        <h1 className="text-6xl uppercase font-bold mb-1 mt-1 text-slate-300">WAF</h1>
+        <h1 className="text-6xl uppercase font-bold mb-1 mt-1 text-slate-300">
+          WAF
+        </h1>
         <h2 className="text-2xl font-bold mb-2 mt-1 text-slate-300">
           Web Application Firewall
         </h2>
       </div>
 
       {/* Layout principal com GRID para organizar melhor */}
-      <div className="z-10 grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-full mt-3">
-
-        {/* Coluna da tabela de países (1/3 da largura) */}
-        <div className="bg-gray-800 p-6 rounded-3xl shadow-lg md:col-span-1">
+      <div
+        className="z-10 grid gap-6 w-full max-w-full mt-3"
+        style={{
+          gridTemplateColumns: "1.2fr 1fr 0.8fr",
+          gridTemplateRows: "auto auto",
+        }}
+      >
+        {/* Coluna 1, linhas 1 e 2 */}
+        <div className="bg-gray-800 p-6 rounded-3xl shadow-lg">
           <QtdSitesTotal />
           <QtdSitesCRP />
           <div className="mt-2"></div>
           <QtdSitesPH />
         </div>
 
-        {/* Coluna da direita com os cards (2/3 da largura) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:col-span-2">
-          {/* Bloco 1 */}
-          <div className="bg-gray-800 p-6 rounded-3xl shadow-lg">
-            <FortiWebStatus />
-          </div>
-
-          {/* Bloco 2 */}
-          <div className="bg-gray-800 p-6 rounded-3xl shadow-lg">
-            <CountriesTable />
-          </div>
-
-          {/* Bloco 3 - AttackType ocupa a largura inteira da direita */}
-          <div className="bg-gray-800 p-6 rounded-3xl shadow-lg col-span-1 md:col-span-2 w-full">
-            <AttackType />
+        {/* AttackType ocupa colunas 2 e 3 na linha 1 */}
+        <div
+          className="bg-gray-800 p-6 rounded-3xl shadow-lg"
+          style={{ gridColumn: "2 / 4", gridRow: "1 / 2" }}
+        >
+          <AttackType />
+          <div className="flex mt-6 gap-6">
+            <div className="flex-1">
+              <FortiWebStatus />
+            </div>
+            <div className="flex-1">
+              <CountriesTable />
+            </div>
           </div>
         </div>
       </div>
