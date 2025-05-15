@@ -139,7 +139,7 @@ const QtdSitesPH: React.FC = () => {
         {/* Card de total geral */}
         <div className="flex flex-col rounded-3xl bg-slate-800 shadow-sm w-full md:max-w-xs p-6 md:p-8 my-4 border border-blue-500">
           <div className="pb-6 md:pb-8 mb-6 md:mb-8 text-center text-slate-100 border-b border-slate-600">
-            <p className="uppercase font-semibold text-blue-300">TOTAL DE SITES</p>
+            <p className="uppercase font-semibold text-blue-300">TOTAL</p>
             <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-2xl md:text-4xl">
               {totalPHs}
             </h1>

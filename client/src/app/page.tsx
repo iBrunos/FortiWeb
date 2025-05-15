@@ -1,6 +1,7 @@
 "use client";
 import QtdSitesCRP from "@/components/interface/cards/qtdsites/QtdSitesCRP";
 import QtdSitesPH from "@/components/interface/cards/qtdsites/QtdSitesPH";
+import QtdSitesTotal from "@/components/interface/cards/qtdsites/QtdSitesTotal";
 import FortiWebStatus from "@/components/interface/cards/fortiwebStatus/FortiWebStatus";
 import AttackType from "@/components/interface/cards/attackType/AttackType";
 import Image from "next/image";
@@ -25,9 +26,10 @@ export default function Home() {
 
       {/* Layout principal com GRID para organizar melhor */}
       <div className="z-10 grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-full mt-3">
-        
+
         {/* Coluna da tabela de países (1/3 da largura) */}
         <div className="bg-gray-800 p-6 rounded-3xl shadow-lg md:col-span-1">
+          <QtdSitesTotal />
           <QtdSitesCRP />
           <div className="mt-2"></div>
           <QtdSitesPH />
