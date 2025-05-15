@@ -7,7 +7,7 @@ export class FortiWebStatusController {
 
   // Endpoint para retornar o status do FortiWeb
   @Get('status')
-  async getStatus(): Promise<{ cpu: number; memory: number; disk: number; tcp_concurrent_connection: number }> {
+  async getStatus(): Promise<{ cpu: number; memory: number; disk: number; tcp_concurrent_connection: number; status: number; throughput_in: number; throughput_out: number }> {
     return await this.fortiWebStatusService.getFortiWebStatus();
   }
 }

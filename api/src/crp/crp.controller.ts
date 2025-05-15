@@ -1,27 +1,20 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, BadRequestException } from '@nestjs/common';
 import { CrpService } from './crp.service';
 
 @Controller('crp')
 export class CrpController {
   constructor(private readonly crpService: CrpService) {}
 
+  // Rota para obter o total de Content Routing Policies (CRP)
   @Get('total')
-  getTotalContentRoutingPolicies() {
-    return this.crpService.getTotalContentRoutingPolicies();
-  }
-
-  @Get('expressions')
-  getContentRoutingExpressions(
-    @Query('page') page: string,
-    @Query('limit') limit: string,
-  ) {
-    const parsedPage = parseInt(page);
-    const parsedLimit = parseInt(limit);
-
-    if (isNaN(parsedPage) || isNaN(parsedLimit)) {
-      throw new Error('Parâmetros "page" e "limit" são obrigatórios e devem ser números.');
+  async getTotalContentRoutingPolicies() {
+    try {
+      // Obtemos os resultados do serviço
+      const resultados = await this.crpService.getTotalContentRoutingPolicies();
+      
+      return { resultados };
+    } catch (error) {
+      throw new BadRequestException('Erro ao calcular o total de CRP');
     }
-
-    return this.crpService.getContentRoutingExpressions(parsedPage, parsedLimit);
   }
 }

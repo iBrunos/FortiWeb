@@ -14,7 +14,7 @@ interface CountryThreat {
 
 const CountriesTable: React.FC = () => {
   const [countryData, setCountryData] = useState<CountryThreat[]>([]);
-  const [intervalTime, setIntervalTime] = useState(10000);
+  const [intervalTime, setIntervalTime] = useState(300000);
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);

@@ -1,5 +1,6 @@
 "use client";
-import QtdSites from "@/components/interface/cards/qtdsites/QtdSites";
+import QtdSitesCRP from "@/components/interface/cards/qtdsites/QtdSitesCRP";
+import QtdSitesPH from "@/components/interface/cards/qtdsites/QtdSitesPH";
 import FortiWebStatus from "@/components/interface/cards/fortiwebStatus/FortiWebStatus";
 import AttackType from "@/components/interface/cards/attackType/AttackType";
 import Image from "next/image";
@@ -16,18 +17,20 @@ export default function Home() {
 
       {/* Títulos */}
       <div className="z-10 flex flex-col items-center text-center">
-        <h1 className="text-6xl uppercase font-bold mb-1 mt-10 text-slate-300">WAF</h1>
-        <h2 className="text-2xl font-bold mb-6 mt-1 text-slate-300">
+        <h1 className="text-6xl uppercase font-bold mb-1 mt-1 text-slate-300">WAF</h1>
+        <h2 className="text-2xl font-bold mb-2 mt-1 text-slate-300">
           Web Application Firewall
         </h2>
       </div>
 
       {/* Layout principal com GRID para organizar melhor */}
-      <div className="z-10 grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-full mt-6">
+      <div className="z-10 grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-full mt-3">
         
         {/* Coluna da tabela de países (1/3 da largura) */}
         <div className="bg-gray-800 p-6 rounded-3xl shadow-lg md:col-span-1">
-          <CountriesTable />
+          <QtdSitesCRP />
+          <div className="mt-2"></div>
+          <QtdSitesPH />
         </div>
 
         {/* Coluna da direita com os cards (2/3 da largura) */}
@@ -39,7 +42,7 @@ export default function Home() {
 
           {/* Bloco 2 */}
           <div className="bg-gray-800 p-6 rounded-3xl shadow-lg">
-            <QtdSites />
+            <CountriesTable />
           </div>
 
           {/* Bloco 3 - AttackType ocupa a largura inteira da direita */}

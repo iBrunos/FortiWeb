@@ -1,47 +1,138 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import fetch from 'node-fetch';
 import * as https from 'https';
 
+interface FortiwebAdomConfig {
+  name: string;
+  baseUrl: string;
+  username: string;
+  password: string;
+  adoms: string[];
+}
+
 @Injectable()
 export class PhService {
-  private readonly API_URL = 'https://172.30.1.254/api/v2.0/cmdb/server-policy/allow-hosts';
-  private readonly AUTH_TOKEN = "eyJ1c2VybmFtZSI6ImFwaSIsInBhc3N3b3JkIjoiQXBpQDEyMzQ1IiwidmRvbSI6InJvb3QifQo=";
+  private readonly fortiwebs: FortiwebAdomConfig[];
+  private readonly httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
-  // Função que faz a requisição GET para a API externa e calcula o total
-  async getTotalProtectedHostname(): Promise<number> {
+  constructor(private readonly configService: ConfigService) {
+    this.fortiwebs = [1, 2]
+      .map((index) => {
+        const name = this.configService.get<string>(`FORTIWEB${index}_NAME`);
+        const baseUrl = this.configService.get<string>(`FORTIWEB${index}_URL`);
+        const username = this.configService.get<string>(`FORTIWEB${index}_USER`);
+        const password = this.configService.get<string>(`FORTIWEB${index}_PASS`);
+        const adoms = this.configService.get<string>(`FORTIWEB${index}_ADOMS`)?.split(',') || [];
+        if (name && baseUrl && username && password && adoms.length) {
+          return { name, baseUrl, username, password, adoms };
+        }
+        return null;
+      })
+      .filter((f): f is FortiwebAdomConfig => f !== null);
+  }
+
+  // Função para gerar o token
+  async generateToken(fortiweb: FortiwebAdomConfig, adom: string): Promise<string | null> {
     try {
-      const response = await fetch(this.API_URL, {
-        method: 'GET',
-        headers: {
-          Authorization: this.AUTH_TOKEN,  // Aqui está o formato correto
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        agent: new https.Agent({
-          rejectUnauthorized: false, // Desabilita a verificação de certificado (não recomendado para produção)
-        }),
-      });
-      // Verifica se a resposta foi bem-sucedida
-      if (!response.ok) {
-        throw new Error(`Erro ao buscar dados: ${response.status}`);
-      }
+      const credentials = {
+        username: fortiweb.username,
+        password: fortiweb.password,
+        vdom: adom
+      };
 
-      // Pega o corpo da resposta
-      const body = await response.json();
-
-      // Verifica se a resposta contém o campo 'results' como esperado
-      if (body.results && Array.isArray(body.results)) {
-        // Calcula o total baseado na propriedade 'sz_content-routing-match-list'
-        const total = body.results.reduce((acc, item) => acc + (item['sz_host-list'] || 0), 0);
-        return total;
-      }
-
-      // Caso o formato da resposta não seja o esperado, lança erro
-      throw new Error('A resposta da API não contém os dados esperados.');
-      
+      const token = Buffer.from(JSON.stringify(credentials)).toString('base64');
+      return token;
     } catch (error) {
-      // Trata os erros e retorna uma mensagem mais descritiva
-      throw new Error(`Erro ao fazer a requisição: ${error.message}`);
+      console.error(`Erro ao gerar token no FortiWeb ${fortiweb.name} [${adom}]`, error);
+      return null;
     }
+  }
+
+  // Função principal para buscar os Protected Hostnames
+  async getTotalProtectedHostnames(): Promise<any> {
+    const resultados = {
+      fortiwebs: [] as Array<{
+        name: string;
+        adoms: Array<{
+          name: string;
+          total: number;
+          error?: string;
+        }>;
+        total: number;
+      }>,
+    };
+
+    for (const fw of this.fortiwebs) {
+      const fortiwebResult = {
+        name: fw.name,
+        adoms: [] as Array<{
+          name: string;
+          total: number;
+          error?: string;
+        }>,
+        total: 0,
+      };
+
+      for (const adom of fw.adoms) {
+        const token = await this.generateToken(fw, adom);
+        if (!token) {
+          console.warn(`  ⚠️ Token não gerado para ${fw.name} [${adom}]`);
+          continue;
+        }
+
+        try {
+          const url = `${fw.baseUrl}/api/v2.0/cmdb/server-policy/allow-hosts`;
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: token,
+            },
+            agent: this.httpsAgent,
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          let adomTotal = 0;
+
+          if (data && Array.isArray(data.results)) {
+            // Conta os hosts em cada entrada
+            data.results.forEach((item) => {
+              if (Array.isArray(item['sz_host-list'])) {
+                adomTotal += item['sz_host-list'].length;
+              } else if (typeof item['sz_host-list'] === 'number') {
+                adomTotal += item['sz_host-list'];
+              } else if (Array.isArray(item['host-list'])) {
+                adomTotal += item['host-list'].length;
+              }
+            });
+          } else {
+            console.warn(`  ⚠️ Dados inesperados para ${fw.name} [${adom}]`, data);
+          }
+
+          fortiwebResult.adoms.push({
+            name: adom,
+            total: adomTotal,
+          });
+
+          fortiwebResult.total += adomTotal;
+        } catch (error) {
+          console.error(`  ❌ Erro ao buscar Protected Hosts no FortiWeb ${fw.name} [${adom}]`, error);
+          fortiwebResult.adoms.push({
+            name: adom,
+            total: 0,
+            error: error.message,
+          });
+        }
+      }
+
+      resultados.fortiwebs.push(fortiwebResult);
+    }
+
+    return resultados;
   }
 }

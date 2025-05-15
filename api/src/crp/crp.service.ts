@@ -1,118 +1,141 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import fetch from 'node-fetch';
 import * as https from 'https';
 
+interface FortiwebAdomConfig {
+  name: string;
+  baseUrl: string;
+  username: string;
+  password: string;
+  adoms: string[];
+}
+
 @Injectable()
 export class CrpService {
-  private readonly API_URL = 'https://172.30.1.254/api/v2.0/cmdb/server-policy/http-content-routing-policy';
-  private readonly MATCH_LIST_URL = 'https://172.30.1.254/api/v2.0/cmdb/server-policy/http-content-routing-policy/content-routing-match-list';
-  private readonly AUTH_TOKEN = 'eyJ1c2VybmFtZSI6ImFwaSIsInBhc3N3b3JkIjoiQXBpQDEyMzQ1IiwidmRvbSI6InJvb3QifQo=';
+  private readonly fortiwebs: FortiwebAdomConfig[];
+  private readonly httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
-  private getHeaders() {
-    return {
-      Authorization: this.AUTH_TOKEN,
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-    };
+  constructor(private readonly configService: ConfigService) {
+    this.fortiwebs = [1, 2]
+      .map((index) => {
+        const name = this.configService.get<string>(`FORTIWEB${index}_NAME`);
+        const baseUrl = this.configService.get<string>(`FORTIWEB${index}_URL`);
+        const username = this.configService.get<string>(`FORTIWEB${index}_USER`);
+        const password = this.configService.get<string>(`FORTIWEB${index}_PASS`);
+        const adoms = this.configService.get<string>(`FORTIWEB${index}_ADOMS`)?.split(',') || [];
+        if (name && baseUrl && username && password && adoms.length) {
+          return { name, baseUrl, username, password, adoms };
+        }
+        return null;
+      })
+      .filter((f): f is FortiwebAdomConfig => f !== null);
   }
 
-  async getTotalContentRoutingPolicies(): Promise<number> {
+  // Função para gerar o token
+  async generateToken(fortiweb: FortiwebAdomConfig, adom: string): Promise<string | null> {
     try {
-      const response = await fetch(this.API_URL, {
-        method: 'GET',
-        headers: this.getHeaders(),
-        agent: new https.Agent({ rejectUnauthorized: false }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Erro ao buscar dados: ${response.status}`);
-      }
-
-      const body = await response.json();
-
-      if (body.results && Array.isArray(body.results)) {
-        const total = body.results.reduce(
-          (acc, item) => acc + (item['sz_content-routing-match-list'] || 0),
-          0,
-        );
-        return total;
-      }
-
-      throw new Error('A resposta da API não contém os dados esperados.');
-    } catch (error) {
-      throw new Error(`Erro ao fazer a requisição: ${error.message}`);
-    }
-  }
-
-  async getContentRoutingExpressions(
-    page: number,
-    limit: number,
-  ): Promise<{ total: number; data: { crp: string; matchExpressions: string[] }[] }> {
-    try {
-
-      const response = await fetch(this.API_URL, {
-        method: 'GET',
-        headers: this.getHeaders(),
-        agent: new https.Agent({ rejectUnauthorized: false }),
-      });
-  
-      if (!response.ok) {
-        throw new Error(`Erro ao buscar CRPs: ${response.status}`);
-      }
-  
-      const body = await response.json();
-  
-      if (!body.results || !Array.isArray(body.results)) {
-        throw new Error('A resposta não contém CRPs válidos.');
-      }
-  
-      const allCrps = body.results;
-      const total = allCrps.length;
-  
-      const startIndex = (page - 1) * limit;
-      const endIndex = page * limit;
-      const paginatedResults = allCrps.slice(startIndex, endIndex);
-  
-      const data = await Promise.all(
-        paginatedResults.map(async (item) => {
-          const crpName = item.name;
-          const detailUrl = `${this.MATCH_LIST_URL}?mkey=${encodeURIComponent(crpName)}`;
-  
-          try {
-            const detailResponse = await fetch(detailUrl, {
-              method: 'GET',
-              headers: this.getHeaders(),
-              agent: new https.Agent({ rejectUnauthorized: false }),
-            });
-  
-            if (!detailResponse.ok) {
-              console.warn(`Erro ao buscar match-list de ${crpName}`);
-              return { crp: crpName, matchExpressions: [] };
-            }
-  
-            const detail = await detailResponse.json();
-            const matchList = detail.results || [];
-  
-            const expressions = matchList
-              .map((match: any) => match['match-expression'])
-              .filter((expr: string) => !!expr);
-  
-  
-            return { crp: crpName, matchExpressions: expressions };
-          } catch (err) {
-            console.error(`Erro ao buscar expressões para ${crpName}:`, err.message);
-            return { crp: crpName, matchExpressions: [] };
-          }
-        }),
-      );
-  
-      return {
-        total,
-        data,
+      const credentials = {
+        username: fortiweb.username,
+        password: fortiweb.password,
+        vdom: adom
       };
+
+      // Converte o objeto JSON para string e depois para base64
+      const token = Buffer.from(JSON.stringify(credentials)).toString('base64');
+      return token;
     } catch (error) {
-      console.error('Erro em getContentRoutingExpressions:', error.message);
-      throw new Error(`Erro ao buscar expressões de roteamento: ${error.message}`);
+      console.error(`Erro ao gerar token no FortiWeb ${fortiweb.name} [${adom}]`, error);
+      return null;
     }
   }
+
+  // Função para buscar CRPs e somar o total por FortiWeb e ADOM
+  async getTotalContentRoutingPolicies(): Promise<any> {
+    const resultados = {
+      fortiwebs: [] as Array<{
+        name: string;
+        adoms: Array<{
+          name: string;
+          total: number;
+          error?: string;
+        }>;
+        total: number;
+      }>,
+    };
+
+    for (const fw of this.fortiwebs) {
+      const fortiwebResult = {
+        name: fw.name,
+        adoms: [] as Array<{
+          name: string;
+          total: number;
+          error?: string;
+        }>,
+        total: 0,
+      };
+
+      for (const adom of fw.adoms) {
+        const token = await this.generateToken(fw, adom);
+        if (!token) {
+          console.warn(`  ⚠️ Token não gerado para ${fw.name} [${adom}]`);
+          continue;
+        }
+
+        try {
+          const url = `${fw.baseUrl}/api/v2.0/cmdb/server-policy/http-content-routing-policy`;
+
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: token,
+            },
+            agent: this.httpsAgent,
+          });
+
+          const data = await response.json();
+          let adomTotal = 0;
+
+          if (data && Array.isArray(data.results)) {
+
+            data.results.forEach((item, index) => {
+              let count = 0;
+              if (Array.isArray(item['sz_content-routing-match-list'])) {
+                count = item['sz_content-routing-match-list'].length;
+              } else if (typeof item['sz_content-routing-match-list'] === 'number') {
+                count = item['sz_content-routing-match-list'];
+              } else if (Array.isArray(item['content-routing-match-list'])) {
+                count = item['content-routing-match-list'].length;
+              }
+              adomTotal += count;
+
+            });
+          } else {
+            console.warn(`  ⚠️ Dados inesperados para ${fw.name} [${adom}]`, data);
+          }
+
+          fortiwebResult.adoms.push({
+            name: adom,
+            total: adomTotal,
+          });
+
+          fortiwebResult.total += adomTotal;
+        } catch (error) {
+          console.error(`  ❌ Erro ao buscar CRPs no FortiWeb ${fw.name} [${adom}]`, error);
+          fortiwebResult.adoms.push({
+            name: adom,
+            total: 0,
+            error: error.message,
+          });
+        }
+      }
+
+      resultados.fortiwebs.push(fortiwebResult);
+    }
+
+    return resultados;
+  }
+
+
 }

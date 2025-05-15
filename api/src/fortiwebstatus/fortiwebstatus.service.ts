@@ -8,7 +8,7 @@ export class FortiWebStatusService {
   private readonly AUTH_TOKEN = "eyJ1c2VybmFtZSI6ImFwaSIsInBhc3N3b3JkIjoiQXBpQDEyMzQ1IiwidmRvbSI6InJvb3QifQo=";
 
   // Função que busca os dados de status do FortiWeb
-  async getFortiWebStatus(): Promise<{ cpu: number; memory: number; disk: number; tcp_concurrent_connection: number }> {
+  async getFortiWebStatus(): Promise<{ cpu: number; memory: number; disk: number; tcp_concurrent_connection: number; status: number; throughput_in: number; throughput_out: number }> {
     try {
       const response = await fetch(this.API_URL, {
         method: 'GET',
@@ -34,6 +34,9 @@ export class FortiWebStatusService {
           memory: body.results.memory || 0,
           disk: body.results.log_disk || 0,
           tcp_concurrent_connection: body.results.tcp_concurrent_connection || 0,
+          status: body.results.status || 0,
+          throughput_in: body.results.throughput_in || 0,
+          throughput_out: body.results.throughput_out || 0
         };
       }
 
