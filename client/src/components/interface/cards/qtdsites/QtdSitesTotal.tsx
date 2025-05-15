@@ -14,31 +14,32 @@ export default function TotalizadorCRPePH() {
   const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-const fetchData = async () => {
-  setIsLoading(true);
-  try {
-    const [crpRes, phRes] = await Promise.all([
-      fetch("https://fortiwebapi.salvador.ba.gov.br/crp/total"),
-      fetch("https://fortiwebapi.salvador.ba.gov.br/ph/total"),
-    ]);
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      const [crpRes, phRes] = await Promise.all([
+        fetch("https://fortiwebapi.salvador.ba.gov.br/crp/total"),
+        fetch("https://fortiwebapi.salvador.ba.gov.br/ph/total"),
+      ]);
 
-    const crpJson = await crpRes.json();
-    const phJson = await phRes.json();
+      const crpJson = await crpRes.json();
+      const phJson = await phRes.json();
 
-    const crpFortiwebs = crpJson.resultados?.fortiwebs || crpJson.fortiwebs || [];
-    const phFortiwebs = phJson.fortiwebs || [];
+      const crpFortiwebs = crpJson.resultados?.fortiwebs || crpJson.fortiwebs || [];
+      const phFortiwebs = phJson.fortiwebs || [];
 
-    const crpTotal = crpFortiwebs.reduce((sum: number, fw: any) => sum + fw.total, 0);
-    const phTotal = phFortiwebs.reduce((sum: number, fw: any) => sum + fw.total, 0);
+      const crpTotal = crpFortiwebs.reduce((sum: number, fw: any) => sum + fw.total, 0);
+      const phTotal = phFortiwebs.reduce((sum: number, fw: any) => sum + fw.total, 0);
 
-    setTotalSites(crpTotal + phTotal);
-  } catch (error) {
-    console.error("Erro ao buscar os dados:", error);
-    setTotalSites(null);
-  } finally {
-    setIsLoading(false);
-  }
-};
+      setTotalSites(crpTotal + phTotal);
+    } catch (error) {
+      console.error("Erro ao buscar os dados:", error);
+      setTotalSites(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchData();
     const interval = setInterval(fetchData, intervalTime);
@@ -46,9 +47,9 @@ const fetchData = async () => {
   }, [intervalTime]);
 
   return (
-    <div className="relative w-[100rem] md:max-w-xs">
+    <div className="relative w-full max-w-md md:max-w-lg lg:max-w-xl mx-auto">
       {/* Card */}
-      <div className="relative flex flex-col rounded-3xl bg-slate-800 shadow-sm w-[65rem] p-6 md:p-8 my-4 border border-white">
+      <div className="relative flex flex-col rounded-3xl bg-slate-800 shadow-sm w-full p-6 md:p-8 my-4 border border-white">
         
         {/* Botão de configuração */}
         <div className="absolute right-6 top-6 z-50">
