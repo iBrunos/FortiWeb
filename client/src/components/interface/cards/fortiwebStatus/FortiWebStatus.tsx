@@ -37,17 +37,19 @@ const FortiWebStatus = () => {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 10000);
+    const interval = setInterval(fetchData, 1000); // agora a cada 1 segundo
     return () => clearInterval(interval);
   }, []);
 
   const formatThroughput = (value: number) => {
-    // converte para Mbps usando sua fórmula
-    const mbps = (value * 8 * 10) / 1048576;
-    if (mbps >= 1000) {
-      return `${(mbps / 1000).toFixed(2)} Gbps`;
+    // Converte bytes por segundo para megabytes por segundo (MB/s)
+    const mb = value / 1048576; // 1024 * 1024
+
+    if (mb >= 1000) {
+      return `${(mb / 1000).toFixed(2)} GB/s`;
     }
-    return `${mbps.toFixed(2)} Mbps`;
+
+    return `${mb.toFixed(2)} MB/s`;
   };
 
   return (
@@ -77,9 +79,9 @@ const FortiWebStatus = () => {
       <div className="flex flex-col md:flex-row justify-center gap-4 mt-8">
         {/* Conexões Ativas */}
         <div className="flex flex-col rounded-3xl bg-slate-800 items-center shadow-sm w-full md:max-w-xs p-6 md:p-8 border border-blue-500">
-          <IoMdGitNetwork className="text-blue-300 mb-1" />
+          <IoMdGitNetwork className="text-white mb-1" />
           <div className="pb-6 md:pb-8 mb-6 md:mb-8 text-center text-slate-100 border-b border-slate-600">
-            <p className="uppercase font-semibold text-blue-300">CONEXÕES ATIVAS</p>
+            <p className="uppercase font-semibold text-white">CONEXÕES ATIVAS</p>
             <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-2xl md:text-4xl">
               {data.tcp_concurrent_connection}
             </h1>
@@ -87,10 +89,10 @@ const FortiWebStatus = () => {
         </div>
 
         {/* Throughput IN */}
-        <div className="flex flex-col rounded-3xl bg-slate-800 items-center shadow-sm w-full md:max-w-xs p-6 md:p-8 border border-green-500">
-          <FaArrowAltCircleDown className="text-green-300 mb-1" />
+        <div className="flex flex-col rounded-3xl bg-slate-800 items-center shadow-sm w-full md:max-w-xs p-6 md:p-8 border border-blue-500">
+          <FaArrowAltCircleDown className="text-white mb-1" />
           <div className="pb-6 md:pb-8 mb-6 md:mb-8 text-center text-slate-100 border-b border-slate-600">
-            <p className="uppercase font-semibold text-green-300">THROUGHPUT IN</p>
+            <p className="uppercase font-semibold text-white">THROUGHPUT IN</p>
             <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-2xl md:text-4xl">
               {formatThroughput(data.throughput_in)}
             </h1>
@@ -98,10 +100,10 @@ const FortiWebStatus = () => {
         </div>
 
         {/* Throughput OUT */}
-        <div className="flex flex-col rounded-3xl bg-slate-800 items-center shadow-sm w-full md:max-w-xs p-6 md:p-8 border border-red-500">
-          <FaArrowAltCircleUp className="text-red-300 mb-1" />
+        <div className="flex flex-col rounded-3xl bg-slate-800 items-center shadow-sm w-full md:max-w-xs p-6 md:p-8 border border-blue-500">
+          <FaArrowAltCircleUp className="text-white mb-1" />
           <div className="pb-6 md:pb-8 mb-6 md:mb-8 text-center text-slate-100 border-b border-slate-600">
-            <p className="uppercase font-semibold text-red-300">THROUGHPUT OUT </p>
+            <p className="uppercase font-semibold text-white">THROUGHPUT OUT </p>
             <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-2xl md:text-4xl">
               {formatThroughput(data.throughput_out)}
             </h1>
