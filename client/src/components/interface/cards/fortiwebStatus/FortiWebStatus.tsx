@@ -37,20 +37,21 @@ const FortiWebStatus = () => {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 1000); // agora a cada 1 segundo
+    const interval = setInterval(fetchData, 1000); // coleta a cada 1 segundo
     return () => clearInterval(interval);
   }, []);
 
   const formatThroughput = (value: number) => {
-    // Converte bytes por segundo para megabytes por segundo (MB/s)
-    const mb = value / 1048576; // 1024 * 1024
+    // Converte bytes por segundo para megabits por segundo (Mbps)
+    const mbps = (value * 8) / 1048576;
 
-    if (mb >= 1000) {
-      return `${(mb / 1000).toFixed(2)} GB/s`;
+    if (mbps >= 1000) {
+      return `${(mbps / 1000).toFixed(2)} Gbps`;
     }
 
-    return `${mb.toFixed(2)} MB/s`;
+    return `${mbps.toFixed(2)} Mbps`;
   };
+
 
   return (
     <div className="bg-gray-900 text-white p-6 rounded-2xl shadow-lg w-full max-w-6xl h-auto">

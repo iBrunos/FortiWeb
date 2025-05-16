@@ -47,7 +47,7 @@ export default function TotalizadorCRPePH() {
   }, [intervalTime]);
 
   return (
-    <div className="relative w-full max-w-md md:max-w-lg lg:max-w-xl mx-auto">
+    <div className="relative w-full max-w-md md:max-w-lg lg:max-w-xl mx-auto ">
       {/* Card */}
       <div className="relative flex flex-col rounded-3xl bg-slate-800 shadow-sm w-full p-6 md:p-8 my-4 border border-blue-300">
         
