@@ -36,7 +36,7 @@ const fetchFortiwebData = async () => {
   try {
     const response = await fetch(API_URL);
     const result = await response.json();
-    const data: FortiWebData[] = result.resultados.fortiwebs || [];
+    const data: FortiWebData[] = result.fortiwebs || [];
 
     // Agregar os WAFs com mesmo nome base (ex: "waf-pms02")
     const aggregated: Record<string, FortiWebData> = {};
