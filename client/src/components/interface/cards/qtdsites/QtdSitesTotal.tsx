@@ -26,7 +26,7 @@ export default function TotalizadorCRPePH() {
       const phJson = await phRes.json();
 
       const crpFortiwebs = crpJson.resultados?.fortiwebs || crpJson.fortiwebs || [];
-      const phFortiwebs = phJson.fortiwebs || [];
+      const phFortiwebs = phJson.resultados?.fortiwebs || phJson.fortiwebs || [];
 
       const crpTotal = crpFortiwebs.reduce((sum: number, fw: any) => sum + fw.total, 0);
       const phTotal = phFortiwebs.reduce((sum: number, fw: any) => sum + fw.total, 0);
