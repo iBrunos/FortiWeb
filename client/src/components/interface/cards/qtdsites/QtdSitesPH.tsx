@@ -31,43 +31,43 @@ const QtdSitesPH: React.FC = () => {
 
   const API_URL = "https://fortiwebapi.salvador.ba.gov.br/ph/total";
 
-const fetchFortiwebData = async () => {
-  setLoading(true);
-  try {
-    const response = await fetch(API_URL);
-    const result = await response.json();
-    const data: FortiWebData[] = result.fortiwebs || [];
+  const fetchFortiwebData = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(API_URL);
+      const result = await response.json();
+      const data: FortiWebData[] = result.resultados.fortiwebs || [];
+      
+      // Agregar os WAFs com mesmo nome base (ex: "waf-pms02")
+      const aggregated: Record<string, FortiWebData> = {};
 
-    // Agregar os WAFs com mesmo nome base (ex: "waf-pms02")
-    const aggregated: Record<string, FortiWebData> = {};
+      data.forEach(item => {
+        const key = item.name.toLowerCase(); // normalize nome
 
-    data.forEach(item => {
-      const key = item.name.toLowerCase(); // normalize nome
+        if (!aggregated[key]) {
+          aggregated[key] = { ...item, adoms: [...item.adoms] };
+        } else {
+          aggregated[key].total += item.total;
 
-      if (!aggregated[key]) {
-        aggregated[key] = { ...item, adoms: [...item.adoms] };
-      } else {
-        aggregated[key].total += item.total;
+          // Somar adoms por nome
+          item.adoms.forEach(adom => {
+            const existing = aggregated[key].adoms.find(a => a.name === adom.name);
+            if (existing) {
+              existing.total += adom.total;
+            } else {
+              aggregated[key].adoms.push({ ...adom });
+            }
+          });
+        }
+      });
 
-        // Somar adoms por nome
-        item.adoms.forEach(adom => {
-          const existing = aggregated[key].adoms.find(a => a.name === adom.name);
-          if (existing) {
-            existing.total += adom.total;
-          } else {
-            aggregated[key].adoms.push({ ...adom });
-          }
-        });
-      }
-    });
-
-    setFortiwebData(Object.values(aggregated));
-  } catch (error) {
-    console.error("Erro ao buscar dados do FortiWeb:", error);
-  } finally {
-    setLoading(false);
-  }
-};
+      setFortiwebData(Object.values(aggregated));
+    } catch (error) {
+      console.error("Erro ao buscar dados do FortiWeb:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   useEffect(() => {
