@@ -5,7 +5,7 @@ import * as https from 'https';
 @Injectable()
 export class AttackTypeService {
   private readonly API_URL = 'https://172.30.1.254/api/v2.0/system/status.monitor';
-  private readonly AUTH_TOKEN = "eyJ1c2VybmFtZSI6ImFwaSIsInBhc3N3b3JkIjoiQXBpQDEyMzQ1IiwidmRvbSI6InJvb3QifQo=";
+  private readonly AUTH_TOKEN = "eyJ1c2VybmFtZSI6ImFwaSIsInBhc3N3b3JkIjoiQXBpQDEyMzQ1NiIsInZkb20iOiJyb290In0K";
 
   // Função que busca os dados de tipos de ataques do FortiWeb
   async getAttackTypes(): Promise<{ type: string; count: number }[]> {

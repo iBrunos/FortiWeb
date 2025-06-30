@@ -13,7 +13,7 @@ const https = require("https");
 let AttackTypeService = class AttackTypeService {
     constructor() {
         this.API_URL = 'https://172.30.1.254/api/v2.0/system/status.monitor';
-        this.AUTH_TOKEN = "eyJ1c2VybmFtZSI6ImFwaSIsInBhc3N3b3JkIjoiQXBpQDEyMzQ1IiwidmRvbSI6InJvb3QifQo=";
+        this.AUTH_TOKEN = "eyJ1c2VybmFtZSI6ImFwaSIsInBhc3N3b3JkIjoiQXBpQDEyMzQ1NiIsInZkb20iOiJyb290In0K";
     }
     async getAttackTypes() {
         try {

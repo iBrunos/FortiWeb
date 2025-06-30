@@ -5,7 +5,7 @@ import * as https from 'https';
 @Injectable()
 export class CountriesService {
   private readonly API_URL = 'https://172.30.1.254/api/v2.0/system/status.monitor?interval=43200';
-  private readonly AUTH_TOKEN = "eyJ1c2VybmFtZSI6ImFwaSIsInBhc3N3b3JkIjoiQXBpQDEyMzQ1IiwidmRvbSI6InJvb3QifQo=";
+  private readonly AUTH_TOKEN = "eyJ1c2VybmFtZSI6ImFwaSIsInBhc3N3b3JkIjoiQXBpQDEyMzQ1NiIsInZkb20iOiJyb290In0K";
 
   private countryCodeMap: Record<string, string> = {
   "Afghanistan": "af",
