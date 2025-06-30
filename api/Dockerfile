@@ -1,13 +1,15 @@
 FROM ubi8/nodejs-20
- 
-# Add application sources
- 
+
 WORKDIR /opt/app-root/src
- 
+
+# Copia os arquivos do projeto
 ADD . .
- 
-# Install the dependencies
+
+# Instala o Nest CLI globalmente
+RUN npm install -g @nestjs/cli
+
+# Instala as dependências do projeto
 RUN npm install
- 
-# Run script uses standard ways to run the application
-CMD npm run -d start --port 3001
+
+# Inicia a aplicação
+CMD ["npm", "run", "start", "--", "--port", "3001"]
