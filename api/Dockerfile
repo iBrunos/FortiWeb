@@ -16,9 +16,6 @@ RUN npm install --include=dev
 # Copia o restante do código
 COPY . .
 
-# Compila o projeto
-RUN npm run build
-
 # Expõe a porta da aplicação
 EXPOSE 3001
 
