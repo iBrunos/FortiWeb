@@ -1,23 +1,21 @@
 FROM ubi8/nodejs-20
 
-# Usa root o tempo todo
 USER 0
 
-# Diretório de trabalho
 WORKDIR /opt/app-root/src
 
-# Copia os arquivos de dependência
 COPY package*.json ./
 COPY tsconfig*.json ./
 
-# Instala dependências de desenvolvimento
+# Instala dependências (incluindo as de dev como ts-node, @nestjs/cli, etc.)
 RUN npm install --include=dev
 
-# Copia o restante do código
 COPY . .
 
-# Expõe a porta da aplicação
+# Permissões opcionais se quiser rodar como 1001 depois
+# RUN chown -R 1001:0 /opt/app-root/src && chmod -R g+rw /opt/app-root/src
+# USER 1001
+
 EXPOSE 3001
 
-# Inicia a aplicação
 CMD ["npm", "run", "start"]
