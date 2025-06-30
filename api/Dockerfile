@@ -19,9 +19,6 @@ USER 1001
 # Copia o restante do código fonte
 COPY . .
 
-# Build da aplicação
-RUN npm run build
-
 # Configurações finais
 EXPOSE 3001
 CMD ["npm", "run", "start:prod"]
