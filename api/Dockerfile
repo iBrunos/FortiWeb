@@ -11,10 +11,9 @@ COPY tsconfig*.json ./
 RUN npm install --include=dev
 
 COPY . .
+RUN chown -R 1001:0 /opt/app-root/src && chmod -R g+rw /opt/app-root/src
 
-# Permissões opcionais se quiser rodar como 1001 depois
-# RUN chown -R 1001:0 /opt/app-root/src && chmod -R g+rw /opt/app-root/src
-# USER 1001
+USER 1001
 
 EXPOSE 8080
 
