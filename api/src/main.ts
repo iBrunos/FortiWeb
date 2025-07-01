@@ -6,7 +6,7 @@ import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
   try {
-    const port = 3001; // Porta do servidor
+    const port = 8080; // Porta do servidor
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
     app.use(bodyParser.json({ limit: '10mb' }));
     app.useGlobalPipes(new ValidationPipe());
