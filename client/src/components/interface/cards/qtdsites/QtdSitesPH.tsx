@@ -80,9 +80,9 @@ const QtdSitesPH: React.FC = () => {
 
   const processAdoms = (adoms: AdomData[]) => {
     const sorted = [...adoms].sort((a, b) => b.total - a.total);
-    const top10 = sorted.slice(0, 5);
+    const top5 = sorted.slice(0, 5);
     const othersTotal = sorted.slice(5).reduce((sum, a) => sum + a.total, 0);
-    return othersTotal > 0 ? [...top10, { name: "Outros", total: othersTotal }] : top10;
+    return othersTotal > 0 ? [...top5, { name: "Outros", total: othersTotal }] : top5;
   };
 
   return (

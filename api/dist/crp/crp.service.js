@@ -18,7 +18,7 @@ let CrpService = class CrpService {
     constructor(configService) {
         this.configService = configService;
         this.httpsAgent = new https.Agent({ rejectUnauthorized: false });
-        this.fortiwebs = [1, 2, 3]
+        this.fortiwebs = [1, 2, 3, 4]
             .map((index) => {
             var _a;
             const name = this.configService.get(`FORTIWEB${index}_NAME`);

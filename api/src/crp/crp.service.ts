@@ -17,7 +17,7 @@ export class CrpService {
   private readonly httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
   constructor(private readonly configService: ConfigService) {
-    this.fortiwebs = [1, 2, 3]
+    this.fortiwebs = [1, 2, 3, 4]
       .map((index) => {
         const name = this.configService.get<string>(`FORTIWEB${index}_NAME`);
         const baseUrl = this.configService.get<string>(`FORTIWEB${index}_URL`);

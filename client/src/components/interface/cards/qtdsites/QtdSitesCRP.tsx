@@ -30,6 +30,7 @@ const QtdSitesCRP: React.FC = () => {
   const intervalLabels = ["1 Minuto", "5 Minutos", "10 Minutos", "30 Minutos", "1 Hora"];
   const API_URL = "https://fortiwebapi.salvador.ba.gov.br/crp/total";
 
+
 const fetchFortiwebData = async () => {
   setLoading(true);
   try {
@@ -79,9 +80,9 @@ const fetchFortiwebData = async () => {
 
   const processAdoms = (adoms: AdomData[]) => {
     const sorted = [...adoms].sort((a, b) => b.total - a.total);
-    const top5 = sorted.slice(0, 5);
-    const othersTotal = sorted.slice(5).reduce((sum, a) => sum + a.total, 0);
-    return othersTotal > 0 ? [...top5, { name: "Outros", total: othersTotal }] : top5;
+    const top10 = sorted.slice(0, 10);
+    const othersTotal = sorted.slice(10).reduce((sum, a) => sum + a.total, 0);
+    return othersTotal > 0 ? [...top10, { name: "Outros", total: othersTotal }] : top10;
   };
 
   return (
