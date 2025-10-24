@@ -47,21 +47,21 @@ export default function TotalizadorCRPePH() {
   }, [intervalTime]);
 
   return (
-    <div className="relative w-full max-w-md md:max-w-lg lg:max-w-xl mx-auto ">
+    <div className="relative w-full">
       {/* Card */}
-      <div className="relative flex flex-col rounded-3xl bg-slate-800 shadow-sm w-full p-6 md:p-8 my-4 border border-blue-300">
+      <div className="relative flex flex-col rounded-2xl bg-slate-800 shadow-sm w-full p-6 border border-blue-400">
         
         {/* Botão de configuração */}
-        <div className="absolute right-6 top-6 z-50">
+        <div className="absolute right-4 top-4 z-50">
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="text-white bg-slate-900 hover:bg-blue-800 focus:ring-4 rounded-2xl focus:outline-none focus:ring-blue-300 font-medium text-sm px-5 py-2.5 flex items-center gap-1"
+            className="text-white bg-slate-900 hover:bg-blue-800 focus:ring-4 rounded-2xl focus:outline-none focus:ring-blue-300 font-medium text-sm px-4 py-2.5 flex items-center gap-1"
           >
-            <IoIosSettings className="w-5 h-5" />
-            <GoTriangleDown />
+            <IoIosSettings className="w-4 h-4" />
+            <GoTriangleDown className="w-3 h-3" />
           </button>
           {dropdownOpen && (
-            <div className="absolute mt-2 bg-gray-800 border-2 divide-y divide-gray-100 rounded-2xl shadow-sm w-44 z-50">
+            <div className="absolute mt-2 bg-gray-800 border-2 divide-y divide-gray-100 rounded-2xl shadow-sm w-40 z-50">
               <ul className="py-2 text-sm text-white">
                 {intervals.map((time, index) => (
                   <li key={index}>
@@ -70,7 +70,7 @@ export default function TotalizadorCRPePH() {
                         setIntervalTime(time);
                         setDropdownOpen(false);
                       }}
-                      className="block px-4 py-2 w-full text-left hover:bg-gray-100 hover:text-black dark:hover:bg-gray-600 dark:hover:text-white flex items-center justify-between"
+                      className="block px-3 py-2 w-full text-left hover:bg-gray-100 hover:text-black flex items-center justify-between text-xs"
                     >
                       <span>{intervalLabels[index]}</span>
                       {intervalTime === time && <FaCheck className="text-green-400 ml-2" />}
@@ -83,11 +83,13 @@ export default function TotalizadorCRPePH() {
         </div>
 
         {/* Conteúdo */}
-        <div className="pb-6 md:pb-8 mb-6 md:mb-8 text-center text-slate-100 border-b border-slate-600">
-          <p className="uppercase font-bold text-4xl text-white">TOTAL DE SITES</p>
-          <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-2xl md:text-4xl">
+        <div className="text-center text-slate-100">
+          <p className="uppercase font-bold text-white text-lg md:text-xl lg:text-2xl">
+            TOTAL DE SITES
+          </p>
+          <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-3xl md:text-4xl lg:text-5xl">
             {isLoading ? (
-              <div className="w-20 h-8 bg-slate-700 animate-pulse rounded" />
+              <div className="w-24 h-8 md:w-32 md:h-10 bg-slate-700 animate-pulse rounded" />
             ) : (
               totalSites
             )}

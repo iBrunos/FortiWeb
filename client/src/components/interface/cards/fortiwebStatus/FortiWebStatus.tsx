@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaArrowAltCircleUp } from "react-icons/fa";
-import { FaArrowAltCircleDown } from "react-icons/fa";
+import { FaArrowAltCircleUp, FaArrowAltCircleDown } from "react-icons/fa";
 import { IoMdGitNetwork } from "react-icons/io";
 
 interface FortiWebStatusData {
@@ -12,22 +11,20 @@ interface FortiWebStatusData {
   throughput_out: number;
 }
 
+interface FortiWebs {
+  WAF01: FortiWebStatusData;
+  WAF02: FortiWebStatusData;
+}
+
 const FortiWebStatus = () => {
-  const [data, setData] = useState<FortiWebStatusData>({
-    cpu: 0,
-    memory: 0,
-    disk: 0,
-    tcp_concurrent_connection: 0,
-    throughput_in: 0,
-    throughput_out: 0
-  });
+  const [data, setData] = useState<FortiWebs | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   const fetchData = async () => {
     try {
       const response = await fetch("https://fortiwebapi.salvador.ba.gov.br/fortiwebstatus/status");
       if (!response.ok) throw new Error("Erro ao buscar dados");
-      const result: FortiWebStatusData = await response.json();
+      const result: FortiWebs = await response.json();
       setData(result);
       setLoaded(true);
     } catch (error) {
@@ -37,80 +34,97 @@ const FortiWebStatus = () => {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 1000); // coleta a cada 1 segundo
+    const interval = setInterval(fetchData, 2000);
     return () => clearInterval(interval);
   }, []);
 
   const formatThroughput = (value: number) => {
-    // Converte bytes por segundo para megabits por segundo (Mbps)
     const mbps = (value * 8) / 1048576;
-
-    if (mbps >= 1000) {
-      return `${(mbps / 1000).toFixed(2)} Gbps`;
-    }
-
+    if (mbps >= 1000) return `${(mbps / 1000).toFixed(2)} Gbps`;
     return `${mbps.toFixed(2)} Mbps`;
   };
 
+  if (!data || !data.WAF01 || !data.WAF02) {
+    return (
+      <div className="text-center text-white p-4 md:p-8">
+        <p>Carregando dados dos FortiWebs...</p>
+      </div>
+    );
+  }
+
+  const renderFortiWeb = (label: string, fw: FortiWebStatusData | undefined) => {
+    if (!fw) return null;
+
+    return (
+      <div className="bg-gray-800 text-white p-4 md:p-6 rounded-2xl shadow-lg w-full">
+        <h2 className="text-lg md:text-xl lg:text-2xl font-bold mb-4 text-center">{label}</h2>
+
+        {/* Barras de uso */}
+        <div className="space-y-3 md:space-y-4 mb-6">
+          {(["cpu", "memory", "disk"] as (keyof FortiWebStatusData)[]).map((key) => (
+            <div key={key}>
+              <div className="flex justify-between text-sm md:text-base">
+                <span className="capitalize">{key}:</span>
+                <span className="font-semibold">{fw[key] ?? 0}%</span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-2 md:h-2.5 overflow-hidden">
+                <div
+                  className={`bg-blue-600 h-2 md:h-2.5 rounded-full transition-all duration-1000 ${
+                    loaded ? "" : "w-0"
+                  }`}
+                  style={{ width: `${fw[key] ?? 0}%` }}
+                ></div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Network Status */}
+        <h3 className="text-lg md:text-xl font-bold mb-4 text-center">Network Status</h3>
+        
+        {/* Cards de rede */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
+          {/* Conexões Ativas */}
+          <div className="flex flex-col rounded-xl md:rounded-2xl bg-slate-700 items-center shadow-sm p-4 border border-blue-500">
+            <IoMdGitNetwork className="text-white mb-2 text-lg md:text-xl" />
+            <div className="text-center text-slate-100">
+              <p className="uppercase font-semibold text-white text-xs md:text-sm">CONEXÕES ATIVAS</p>
+              <h1 className="mt-2 font-bold text-white text-xl md:text-2xl">
+                {fw.tcp_concurrent_connection ?? 0}
+              </h1>
+            </div>
+          </div>
+
+          {/* Throughput IN */}
+          <div className="flex flex-col rounded-xl md:rounded-2xl bg-slate-700 items-center shadow-sm p-4 border border-blue-500">
+            <FaArrowAltCircleDown className="text-white mb-2 text-lg md:text-xl" />
+            <div className="text-center text-slate-100">
+              <p className="uppercase font-semibold text-white text-xs md:text-sm">THROUGHPUT IN</p>
+              <h1 className="mt-2 font-bold text-white text-lg md:text-xl">
+                {formatThroughput(fw.throughput_in ?? 0)}
+              </h1>
+            </div>
+          </div>
+
+          {/* Throughput OUT */}
+          <div className="flex flex-col rounded-xl md:rounded-2xl bg-slate-700 items-center shadow-sm p-4 border border-blue-500">
+            <FaArrowAltCircleUp className="text-white mb-2 text-lg md:text-xl" />
+            <div className="text-center text-slate-100">
+              <p className="uppercase font-semibold text-white text-xs md:text-sm">THROUGHPUT OUT</p>
+              <h1 className="mt-2 font-bold text-white text-lg md:text-xl">
+                {formatThroughput(fw.throughput_out ?? 0)}
+              </h1>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div className="bg-gray-900 text-white p-6 rounded-2xl shadow-lg w-full max-w-6xl h-auto">
-      <h2 className="text-xl md:text-3xl font-bold mb-4 text-center">FortiWeb Status</h2>
-
-      {/* Barras de uso */}
-      <div className="space-y-4">
-        {(["cpu", "memory", "disk"] as (keyof FortiWebStatusData)[]).map((key) => (
-          <div key={key}>
-            <div className="flex justify-between text-sm md:text-base">
-              <span>{key.charAt(0).toUpperCase() + key.slice(1)}:</span>
-              <span className="font-semibold">{data[key]}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
-              <div
-                className={`bg-blue-600 h-2.5 rounded-full transition-all duration-1000 ${loaded ? "" : "w-0"}`}
-                style={{ width: `${data[key]}%` }}
-              ></div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Cards */}
-      <h2 className="text-xl md:text-3xl font-bold mb-4 mt-[6rem] text-center">Network Status</h2>
-      <div className="flex flex-col md:flex-row justify-center gap-4 mt-8">
-        {/* Conexões Ativas */}
-        <div className="flex flex-col rounded-3xl bg-slate-800 items-center shadow-sm w-full md:max-w-xs p-6 md:p-8 border border-blue-500">
-          <IoMdGitNetwork className="text-white mb-1" />
-          <div className="pb-6 md:pb-8 mb-6 md:mb-8 text-center text-slate-100 border-b border-slate-600">
-            <p className="uppercase font-semibold text-white">CONEXÕES ATIVAS</p>
-            <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-2xl md:text-4xl">
-              {data.tcp_concurrent_connection}
-            </h1>
-          </div>
-        </div>
-
-        {/* Throughput IN */}
-        <div className="flex flex-col rounded-3xl bg-slate-800 items-center shadow-sm w-full md:max-w-xs p-6 md:p-8 border border-blue-500">
-          <FaArrowAltCircleDown className="text-white mb-1" />
-          <div className="pb-6 md:pb-8 mb-6 md:mb-8 text-center text-slate-100 border-b border-slate-600">
-            <p className="uppercase font-semibold text-white">THROUGHPUT IN</p>
-            <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-2xl md:text-4xl">
-              {formatThroughput(data.throughput_in)}
-            </h1>
-          </div>
-        </div>
-
-        {/* Throughput OUT */}
-        <div className="flex flex-col rounded-3xl bg-slate-800 items-center shadow-sm w-full md:max-w-xs p-6 md:p-8 border border-blue-500">
-          <FaArrowAltCircleUp className="text-white mb-1" />
-          <div className="pb-6 md:pb-8 mb-6 md:mb-8 text-center text-slate-100 border-b border-slate-600">
-            <p className="uppercase font-semibold text-white">THROUGHPUT OUT </p>
-            <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-2xl md:text-4xl">
-              {formatThroughput(data.throughput_out)}
-            </h1>
-          </div>
-        </div>
-      </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+      {renderFortiWeb("FortiWeb 01", data.WAF01)}
+      {renderFortiWeb("FortiWeb 02", data.WAF02)}
     </div>
   );
 };

@@ -23,12 +23,11 @@ const QtdSitesPH: React.FC = () => {
   const [popupOpen, setPopupOpen] = useState(false);
   const [selectedCard, setSelectedCard] = useState<FortiWebData | null>(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [intervalTime, setIntervalTime] = useState<number>(300000); // 5 min default
+  const [intervalTime, setIntervalTime] = useState<number>(300000);
   const [loading, setLoading] = useState(false);
 
   const intervals = [60000, 300000, 600000, 1800000, 3600000];
   const intervalLabels = ["1 Minuto", "5 Minutos", "10 Minutos", "30 Minutos", "1 Hora"];
-
   const API_URL = "https://fortiwebapi.salvador.ba.gov.br/ph/total";
 
   const fetchFortiwebData = async () => {
@@ -38,18 +37,14 @@ const QtdSitesPH: React.FC = () => {
       const result = await response.json();
       const data: FortiWebData[] = result.resultados.fortiwebs || [];
       
-      // Agregar os WAFs com mesmo nome base (ex: "waf-pms02")
       const aggregated: Record<string, FortiWebData> = {};
 
       data.forEach(item => {
-        const key = item.name.toLowerCase(); // normalize nome
-
+        const key = item.name.toLowerCase();
         if (!aggregated[key]) {
           aggregated[key] = { ...item, adoms: [...item.adoms] };
         } else {
           aggregated[key].total += item.total;
-
-          // Somar adoms por nome
           item.adoms.forEach(adom => {
             const existing = aggregated[key].adoms.find(a => a.name === adom.name);
             if (existing) {
@@ -69,7 +64,6 @@ const QtdSitesPH: React.FC = () => {
     }
   };
 
-
   useEffect(() => {
     fetchFortiwebData();
     const intervalId = setInterval(fetchFortiwebData, intervalTime);
@@ -86,49 +80,52 @@ const QtdSitesPH: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center bg-gray-900 rounded-2xl relative p-6">
-      <h2 className="text-2xl font-bold text-center mt-2 mb-4 text-white">Sites via PH</h2>
-
-      {/* Configuração de intervalo */}
-      <div className="absolute right-4 top-4">
-        <button
-          onClick={() => setDropdownOpen(!dropdownOpen)}
-          className="text-white bg-slate-900 hover:bg-blue-800 focus:ring-4 rounded-2xl focus:outline-none focus:ring-blue-300 font-medium text-sm px-5 py-2.5 flex items-center gap-1"
-        >
-          <IoIosSettings className="w-5 h-5" />
-          <GoTriangleDown />
-        </button>
-        {dropdownOpen && (
-          <div className="absolute right-0 mt-2 bg-gray-800 border-2 divide-y divide-gray-100 rounded-2xl shadow-sm w-44 z-50">
-            <ul className="py-2 text-sm text-white">
-              {intervals.map((time, index) => (
-                <li key={index}>
-                  <button
-                    onClick={() => {
-                      setIntervalTime(time);
-                      setDropdownOpen(false);
-                    }}
-                    className="block px-4 py-2 w-full text-left hover:bg-gray-100 hover:text-black dark:hover:bg-gray-600 dark:hover:text-white flex items-center justify-between"
-                  >
-                    <span>{intervalLabels[index]}</span>
-                    {intervalTime === time && <FaCheck className="text-green-400 ml-2" />}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+    <div className="flex flex-col bg-gray-800 rounded-2xl relative p-4 md:p-6">
+      {/* Cabeçalho */}
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl md:text-2xl font-bold text-white">Sites via PH</h2>
+        
+        {/* Configuração de intervalo */}
+        <div className="relative">
+          <button
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            className="text-white bg-slate-900 hover:bg-blue-800 focus:ring-4 rounded-2xl focus:outline-none focus:ring-blue-300 font-medium text-sm px-4 py-2.5 flex items-center gap-1"
+          >
+            <IoIosSettings className="w-4 h-4" />
+            <GoTriangleDown className="w-3 h-3" />
+          </button>
+          {dropdownOpen && (
+            <div className="absolute right-0 mt-2 bg-gray-800 border-2 divide-y divide-gray-100 rounded-2xl shadow-sm w-40 z-50">
+              <ul className="py-2 text-sm text-white">
+                {intervals.map((time, index) => (
+                  <li key={index}>
+                    <button
+                      onClick={() => {
+                        setIntervalTime(time);
+                        setDropdownOpen(false);
+                      }}
+                      className="block px-3 py-2 w-full text-left hover:bg-gray-100 hover:text-black flex items-center justify-between text-xs"
+                    >
+                      <span>{intervalLabels[index]}</span>
+                      {intervalTime === time && <FaCheck className="text-green-400 ml-2" />}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Loading */}
       {loading && (
-        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10 rounded-2xl">
+          <div className="animate-spin rounded-full h-8 w-8 md:h-12 md:w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       )}
 
       {/* Cards de PH */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6 w-full justify-items-center">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-4">
         {fortiwebData.map((ph, index) => {
           const processedAdoms = processAdoms(ph.adoms);
           const isClickable = ph.total > 0;
@@ -136,7 +133,9 @@ const QtdSitesPH: React.FC = () => {
           return (
             <div
               key={index}
-              className={`flex flex-col ${isClickable ? "hover:bg-slate-600 cursor-pointer" : "opacity-50"} rounded-3xl bg-slate-800 shadow-sm w-full md:max-w-xs p-6 md:p-8 my-4 border border-slate-600`}
+              className={`flex flex-col ${
+                isClickable ? "hover:bg-slate-600 cursor-pointer" : "opacity-50"
+              } rounded-xl md:rounded-2xl bg-slate-700 shadow-sm w-full p-4 border border-slate-600 transition-colors`}
               onClick={() => {
                 if (isClickable) {
                   setSelectedCard({ ...ph, adoms: processedAdoms });
@@ -144,17 +143,17 @@ const QtdSitesPH: React.FC = () => {
                 }
               }}
             >
-              <div className="pb-6 md:pb-8 mb-6 md:mb-8 text-center text-slate-100 border-b border-slate-600">
-                <p className="uppercase font-semibold text-slate-300">{ph.name}</p>
-                <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-2xl md:text-4xl">
+              <div className="text-center text-slate-100 border-b border-slate-600 pb-3 mb-3">
+                <p className="uppercase font-semibold text-slate-300 text-sm md:text-base">{ph.name}</p>
+                <h1 className="mt-2 font-bold text-white text-xl md:text-2xl">
                   {ph.total}
                 </h1>
               </div>
-              <div className="space-y-2 mt-4 text-slate-300">
+              <div className="space-y-1 text-slate-300 text-sm">
                 {processedAdoms.map((adom, idx) => (
                   <div key={idx} className="flex justify-between">
-                    <span>{adom.name}</span>
-                    <span>{adom.total}</span>
+                    <span className="truncate mr-2">{adom.name}</span>
+                    <span className="font-semibold">{adom.total}</span>
                   </div>
                 ))}
               </div>
@@ -163,18 +162,18 @@ const QtdSitesPH: React.FC = () => {
         })}
 
         {/* Card de total geral */}
-        <div className="flex flex-col rounded-3xl bg-slate-800 shadow-sm w-full md:max-w-xs p-6 md:p-8 my-4 border border-blue-500">
-          <div className="pb-6 md:pb-8 mb-6 md:mb-8 text-center text-slate-100 border-b border-slate-600">
-            <p className="uppercase font-semibold text-blue-300">TOTAL</p>
-            <h1 className="flex justify-center gap-1 mt-4 font-bold text-white text-2xl md:text-4xl">
+        <div className="flex flex-col rounded-xl md:rounded-2xl bg-slate-700 shadow-sm w-full p-4 border border-blue-500">
+          <div className="text-center text-slate-100 border-b border-slate-600 pb-3 mb-3">
+            <p className="uppercase font-semibold text-blue-300 text-sm md:text-base">TOTAL</p>
+            <h1 className="mt-2 font-bold text-white text-xl md:text-2xl">
               {totalPHs}
             </h1>
           </div>
-          <div className="space-y-2 mt-4 text-slate-300">
+          <div className="space-y-1 text-slate-300 text-sm">
             {fortiwebData.map((ph, idx) => (
               <div key={idx} className="flex justify-between">
-                <span>{ph.name}</span>
-                <span>{ph.total}</span>
+                <span className="truncate mr-2">{ph.name}</span>
+                <span className="font-semibold">{ph.total}</span>
               </div>
             ))}
           </div>
@@ -184,38 +183,44 @@ const QtdSitesPH: React.FC = () => {
       {/* Modal com tabela de ADOMs */}
       {popupOpen && selectedCard && (
         <motion.div
-          initial={{ x: "-100%" }}
-          animate={{ x: 0 }}
-          exit={{ x: "-100%" }}
-          transition={{ duration: 0.3 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"
         >
-          <div className="bg-gray-800 p-6 rounded-2xl shadow-lg w-full max-w-5xl">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-gray-800 p-4 md:p-6 rounded-2xl shadow-lg w-full max-w-2xl max-h-[80vh] overflow-hidden"
+          >
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-white">{selectedCard.name}</h3>
-              <button onClick={() => setPopupOpen(false)} className="text-xl text-white">
+              <h3 className="text-lg md:text-xl font-bold text-white">{selectedCard.name}</h3>
+              <button 
+                onClick={() => setPopupOpen(false)} 
+                className="text-xl text-white hover:text-gray-300"
+              >
                 <IoClose />
               </button>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-auto max-h-[60vh]">
               <table className="w-full text-sm text-left text-slate-300">
-                <thead className="text-xs uppercase bg-gray-700 text-gray-300">
+                <thead className="text-xs uppercase bg-gray-700 text-gray-300 sticky top-0">
                   <tr>
-                    <th className="px-6 py-3">ADOM</th>
-                    <th className="px-6 py-3 text-right">Quantidade</th>
+                    <th className="px-4 py-2 md:px-6 md:py-3">ADOM</th>
+                    <th className="px-4 py-2 md:px-6 md:py-3 text-right">Quantidade</th>
                   </tr>
                 </thead>
                 <tbody>
                   {selectedCard.adoms.map((adom, idx) => (
                     <tr key={idx} className="border-b border-slate-600 bg-slate-800 hover:bg-slate-700">
-                      <td className="px-6 py-4">{adom.name}</td>
-                      <td className="px-6 py-4 text-right font-semibold">{adom.total}</td>
+                      <td className="px-4 py-2 md:px-6 md:py-4">{adom.name}</td>
+                      <td className="px-4 py-2 md:px-6 md:py-4 text-right font-semibold">{adom.total}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
       )}
     </div>

@@ -5,9 +5,17 @@ import { FortiWebStatusService } from './fortiwebstatus.service';
 export class FortiWebStatusController {
   constructor(private readonly fortiWebStatusService: FortiWebStatusService) {}
 
-  // Endpoint para retornar o status do FortiWeb
+  // Endpoint para retornar o status dos dois FortiWebs
   @Get('status')
-  async getStatus(): Promise<{ cpu: number; memory: number; disk: number; tcp_concurrent_connection: number; status: number; throughput_in: number; throughput_out: number }> {
+  async getStatus(): Promise<Record<string, {
+    cpu: number;
+    memory: number;
+    disk: number;
+    tcp_concurrent_connection: number;
+    status: number;
+    throughput_in: number;
+    throughput_out: number;
+  }>> {
     return await this.fortiWebStatusService.getFortiWebStatus();
   }
 }

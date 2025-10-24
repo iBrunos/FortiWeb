@@ -2,69 +2,89 @@ import { Injectable } from '@nestjs/common';
 import fetch from 'node-fetch';
 import * as https from 'https';
 
+interface FortiWebStatus {
+  cpu: number;
+  memory: number;
+  disk: number;
+  tcp_concurrent_connection: number;
+  status: number;
+  throughput_in: number;
+  throughput_out: number;
+}
+
 @Injectable()
 export class FortiWebStatusService {
-  private readonly API_URL = 'https://172.30.1.254/api/v2.0/system/status.monitor';
-  private readonly AUTH_TOKEN = "eyJ1c2VybmFtZSI6ImFwaSIsInBhc3N3b3JkIjoiQXBpQDEyMzQ1NiIsInZkb20iOiJyb290In0K";
+  private readonly fortiwebs = [
+    {
+      name: 'WAF01',
+      url: 'https://172.30.1.254/api/v2.0/system/status.monitor',
+      token: 'eyJ1c2VybmFtZSI6ImFwaSIsInBhc3N3b3JkIjoiQXBpQDEyMzQ1NiIsInZkb20iOiJyb290In0K',
+    },
+    {
+      name: 'WAF02',
+      url: 'https://10.201.131.2/api/v2.0/system/status.monitor', // coloque aqui o segundo endpoint
+      token: 'eyJ1c2VybmFtZSI6ImFwaTIiLCJwYXNzd29yZCI6IkFwaTEyMzQ1QCIsInZkb20iOiJTRUlORlJBIn0=', // coloque aqui o segundo token
+    },
+  ];
 
-  // Função que busca os dados de status do FortiWeb
-  async getFortiWebStatus(): Promise<{
-    cpu: number;
-    memory: number;
-    disk: number;
-    tcp_concurrent_connection: number;
-    status: number;
-    throughput_in: number;
-    throughput_out: number;
-  }> {
-    console.log('Iniciando requisição para FortiWeb');
+  async getFortiWebStatus(): Promise<Record<string, FortiWebStatus>> {
+    const agent = new https.Agent({ rejectUnauthorized: false });
 
-    try {
-      console.log('URL da API:', this.API_URL);
-      console.log('Token de autenticação:', this.AUTH_TOKEN);
+    const results: Record<string, FortiWebStatus> = {};
 
-      const response = await fetch(this.API_URL, {
-        method: 'GET',
-        headers: {
-          Authorization: this.AUTH_TOKEN,
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        agent: new https.Agent({
-          rejectUnauthorized: false,
-        }),
-      });
+    for (const fw of this.fortiwebs) {
+      try {
+        const response = await fetch(fw.url, {
+          method: 'GET',
+          headers: {
+            Authorization: fw.token,
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          agent,
+        });
 
-      console.log('Status da resposta:', response.status);
+        if (!response.ok) {
+          throw new Error(`${fw.name} retornou erro HTTP ${response.status}`);
+        }
 
-      if (!response.ok) {
-        console.error(`Erro HTTP: ${response.status}`);
-        throw new Error(`Erro ao buscar dados: ${response.status}`);
-      }
+        const body = await response.json();
 
-      const body = await response.json();
-      console.log('Resposta JSON da API:', JSON.stringify(body, null, 2));
-
-      if (body.results) {
-        const parsedResult = {
-          cpu: body.results.cpu || 0,
-          memory: body.results.memory || 0,
-          disk: body.results.log_disk || 0,
-          tcp_concurrent_connection: body.results.tcp_concurrent_connection || 0,
-          status: body.results.status || 0,
-          throughput_in: body.results.throughput_in || 0,
-          throughput_out: body.results.throughput_out || 0,
+        if (body.results) {
+          results[fw.name] = {
+            cpu: body.results.cpu || 0,
+            memory: body.results.memory || 0,
+            disk: body.results.log_disk || 0,
+            tcp_concurrent_connection: body.results.tcp_concurrent_connection || 0,
+            status: body.results.status || 0,
+            throughput_in: body.results.throughput_in || 0,
+            throughput_out: body.results.throughput_out || 0,
+          };
+        } else {
+          console.error(`${fw.name} - Resposta sem "results".`);
+          results[fw.name] = {
+            cpu: 0,
+            memory: 0,
+            disk: 0,
+            tcp_concurrent_connection: 0,
+            status: 0,
+            throughput_in: 0,
+            throughput_out: 0,
+          };
+        }
+      } catch (error) {
+        console.error(`Erro ao consultar ${fw.name}:`, error.message);
+        results[fw.name] = {
+          cpu: 0,
+          memory: 0,
+          disk: 0,
+          tcp_concurrent_connection: 0,
+          status: 0,
+          throughput_in: 0,
+          throughput_out: 0,
         };
-
-        console.log('Dados extraídos com sucesso:', parsedResult);
-        return parsedResult;
       }
-
-      console.error('A resposta da API não contém a chave "results".');
-      throw new Error('A resposta da API não contém os dados esperados.');
-    } catch (error) {
-      console.error('Erro ao fazer a requisição:', error.message);
-      throw new Error(`Erro ao fazer a requisição: ${error.message}`);
     }
+    return results;
   }
 }
