@@ -29,6 +29,7 @@ const QtdSitesCRP: React.FC = () => {
   const intervals = [60000, 300000, 600000, 1800000, 3600000];
   const intervalLabels = ["1 Minuto", "5 Minutos", "10 Minutos", "30 Minutos", "1 Hora"];
   const API_URL = "https://fortiwebapi.salvador.ba.gov.br/crp/total";
+  const MAX_ITEMS = 20; // Limite de 20 itens
 
   const fetchFortiwebData = async () => {
     setLoading(true);
@@ -127,20 +128,27 @@ const QtdSitesCRP: React.FC = () => {
             </h1>
           </div>
           <div className="space-y-1 text-slate-300 text-sm">
-            {fortiwebData.map((crp, idx) => (
+            {fortiwebData.slice(0, MAX_ITEMS).map((crp, idx) => (
               <div key={idx} className="flex justify-between">
                 <span className="truncate mr-2">{crp.name}</span>
                 <span className="font-semibold">{crp.total}</span>
               </div>
             ))}
+            {/* Mostra contador se houver mais itens */}
+            {fortiwebData.length > MAX_ITEMS && (
+              <div className="text-center text-slate-400 text-xs pt-2 border-t border-slate-600">
+                + {fortiwebData.length - MAX_ITEMS} itens ocultos
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Cards de CRP com duas colunas - SEM SCROLL */}
+      {/* Cards de CRP com duas colunas */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-4">
-        {fortiwebData.map((crp, index) => {
+        {fortiwebData.slice(0, MAX_ITEMS).map((crp, index) => {
           const sortedAdoms = [...crp.adoms].sort((a, b) => b.total - a.total);
+          const displayedAdoms = sortedAdoms.slice(0, MAX_ITEMS); // Limita a 20 ADOMs
           const isClickable = crp.total > 0;
 
           return (
@@ -163,9 +171,9 @@ const QtdSitesCRP: React.FC = () => {
                 </h1>
               </div>
               
-              {/* Duas colunas com todos os ADOMs - SEM LIMITE DE ALTURA */}
+              {/* Duas colunas com máximo de 20 ADOMs */}
               <div className="grid grid-cols-2 gap-2">
-                {sortedAdoms.map((adom, idx) => (
+                {displayedAdoms.map((adom, idx) => (
                   <div key={idx} className="flex justify-between items-center p-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
                     <span className="text-sm text-slate-200 truncate" title={adom.name}>
                       {adom.name}
@@ -176,12 +184,19 @@ const QtdSitesCRP: React.FC = () => {
                   </div>
                 ))}
               </div>
+              
+              {/* Mostra contador se houver mais ADOMs */}
+              {sortedAdoms.length > MAX_ITEMS && (
+                <div className="text-center text-slate-400 text-xs pt-3 mt-2 border-t border-slate-600">
+                  + {sortedAdoms.length - MAX_ITEMS} ADOMs ocultos
+                </div>
+              )}
             </div>
           );
         })}
       </div>
 
-      {/* Modal com tabela de ADOMs - SEM SCROLL */}
+      {/* Modal com tabela de ADOMs - máximo 20 */}
       {popupOpen && selectedCard && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -207,9 +222,12 @@ const QtdSitesCRP: React.FC = () => {
               </button>
             </div>
             
-            {/* Grid de 2 colunas no modal - SEM LIMITE DE ALTURA */}
+            {/* Grid de 2 colunas no modal - máximo 20 itens */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {[...selectedCard.adoms].sort((a, b) => b.total - a.total).map((adom, idx) => (
+              {[...selectedCard.adoms]
+                .sort((a, b) => b.total - a.total)
+                .slice(0, MAX_ITEMS)
+                .map((adom, idx) => (
                 <div key={idx} className="flex justify-between items-center p-3 bg-gray-700 rounded-lg border border-gray-600">
                   <span className="text-sm md:text-base text-slate-200 font-medium truncate" title={adom.name}>
                     {adom.name}
@@ -220,6 +238,13 @@ const QtdSitesCRP: React.FC = () => {
                 </div>
               ))}
             </div>
+            
+            {/* Mostra contador no modal se houver mais itens */}
+            {selectedCard.adoms.length > MAX_ITEMS && (
+              <div className="text-center text-slate-400 text-xs pt-4 mt-3 border-t border-gray-600">
+                Mostrando {MAX_ITEMS} de {selectedCard.adoms.length} ADOMs
+              </div>
+            )}
           </motion.div>
         </motion.div>
       )}
