@@ -13,5 +13,6 @@ export declare class CrpService {
     constructor(configService: ConfigService);
     generateToken(fortiweb: FortiwebAdomConfig, adom: string): Promise<string | null>;
     getTotalContentRoutingPolicies(): Promise<any>;
+    getCrpsByAdom(adom: string): Promise<any>;
 }
 export {};

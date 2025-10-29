@@ -46,7 +46,7 @@ export default function AttackType() {
       {/* Cabeçalho e Dropdown */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl md:text-2xl font-bold">Ataques por Tipo</h2>
-        
+
         {/* Dropdown de atualização */}
         <div className="relative">
           <button
@@ -80,31 +80,27 @@ export default function AttackType() {
       </div>
 
       {loading ? (
-        <div className="flex flex-col lg:flex-row gap-4 md:gap-6 animate-pulse">
-          {/* Skeleton da tabela */}
-          <div className="flex-1 space-y-3">
-            {[...Array(6)].map((_, idx) => (
-              <div key={idx} className="h-8 md:h-10 bg-gray-700 rounded w-full"></div>
-            ))}
-          </div>
-
+        <div className="flex flex-col gap-4 md:gap-6 animate-pulse">
           {/* Skeleton do gráfico + legenda */}
-          <div className="flex-1 flex flex-col lg:flex-row gap-4">
-            <div className="w-full lg:w-2/3 h-48 md:h-72 bg-gray-700 rounded-lg" />
-            <div className="lg:w-1/3 space-y-3 mt-4 lg:mt-0">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-4 w-32 bg-gray-700 rounded" />
+          <div className="flex flex-col gap-4">
+            <div className="w-full h-48 md:h-72 bg-gray-700 rounded-lg" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mt-4">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-gray-700 rounded-full"></div>
+                  <div className="h-4 w-20 bg-gray-700 rounded"></div>
+                </div>
               ))}
             </div>
           </div>
         </div>
       ) : (
-        <div className="flex flex-col lg:flex-row gap-4 md:gap-6">
+        <div className="flex flex-col gap-4 md:gap-6">
           {/* Gráfico + Legenda */}
-          <div className="flex-1 bg-gray-800 p-4 md:p-6 rounded-lg shadow-md">
-            <div className="flex flex-col lg:flex-row items-center gap-4 md:gap-6">
+          <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-md">
+            <div className="flex flex-col items-center gap-6">
               {/* Gráfico de Rosca */}
-              <div className="w-full lg:w-2/3 h-48 md:h-64 lg:h-72">
+              <div className="w-full h-48 md:h-64 lg:h-72">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -128,17 +124,17 @@ export default function AttackType() {
                 </ResponsiveContainer>
               </div>
 
-              {/* Legenda */}
-              <div className="w-full lg:w-1/3">
-                <h3 className="text-lg font-semibold mb-3 text-center lg:text-left">Legenda</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2">
+              {/* Legenda - Agora abaixo do gráfico */}
+              <div className="w-full">
+                <h3 className="text-lg font-semibold mb-4 text-center">Legenda</h3>
+                <div className="flex flex-wrap justify-center gap-3">
                   {data.map((attack, index) => (
-                    <div key={index} className="flex items-center">
+                    <div key={index} className="flex items-center gap-2 min-w-[120px]">
                       <div
-                        className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
+                        className="w-3 h-3 rounded-full flex-shrink-0"
                         style={{ backgroundColor: COLORS[index % COLORS.length] }}
                       ></div>
-                      <span className="text-sm truncate">{attack.type}</span>
+                      <span className="text-sm whitespace-nowrap">{attack.type}</span>
                     </div>
                   ))}
                 </div>

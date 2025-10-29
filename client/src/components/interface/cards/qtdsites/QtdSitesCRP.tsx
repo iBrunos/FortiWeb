@@ -6,6 +6,7 @@ import { GoTriangleDown } from "react-icons/go";
 import { FaCheck } from "react-icons/fa";
 import { IoClose } from "react-icons/io5";
 import { motion } from "framer-motion";
+import AdomModal from "./AdomModal"; // ajuste o caminho se necessário
 
 interface AdomData {
   name: string;
@@ -78,7 +79,7 @@ const QtdSitesCRP: React.FC = () => {
       {/* Cabeçalho */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl md:text-2xl font-bold text-white">Sites via CRP</h2>
-        
+
         {/* Configuração de intervalo */}
         <div className="relative">
           <button
@@ -154,9 +155,8 @@ const QtdSitesCRP: React.FC = () => {
           return (
             <div
               key={index}
-              className={`flex flex-col ${
-                isClickable ? "hover:bg-slate-600 cursor-pointer" : "opacity-50"
-              } rounded-xl md:rounded-2xl bg-gray-800 shadow-sm w-full p-4 border border-slate-600 transition-colors`}
+              className={`flex flex-col ${isClickable ? "hover:bg-slate-600 cursor-pointer" : "opacity-50"
+                } rounded-xl md:rounded-2xl bg-gray-800 shadow-sm w-full p-4 border border-slate-600 transition-colors`}
               onClick={() => {
                 if (isClickable) {
                   setSelectedCard(crp);
@@ -170,7 +170,7 @@ const QtdSitesCRP: React.FC = () => {
                   {crp.total}
                 </h1>
               </div>
-              
+
               {/* Duas colunas com máximo de 20 ADOMs */}
               <div className="grid grid-cols-2 gap-2">
                 {displayedAdoms.map((adom, idx) => (
@@ -184,7 +184,7 @@ const QtdSitesCRP: React.FC = () => {
                   </div>
                 ))}
               </div>
-              
+
               {/* Mostra contador se houver mais ADOMs */}
               {sortedAdoms.length > MAX_ITEMS && (
                 <div className="text-center text-slate-400 text-xs pt-3 mt-2 border-t border-slate-600">
@@ -197,57 +197,12 @@ const QtdSitesCRP: React.FC = () => {
       </div>
 
       {/* Modal com tabela de ADOMs - máximo 20 */}
-      {popupOpen && selectedCard && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4"
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            className="bg-gray-800 p-4 md:p-6 rounded-2xl shadow-lg w-full max-w-4xl"
-          >
-            <div className="flex justify-between items-center mb-4">
-              <div>
-                <h3 className="text-lg md:text-xl font-bold text-white">{selectedCard.name}</h3>
-                <p className="text-sm text-gray-400">Total: {selectedCard.total} sites</p>
-              </div>
-              <button 
-                onClick={() => setPopupOpen(false)} 
-                className="text-xl text-white hover:text-gray-300"
-              >
-                <IoClose />
-              </button>
-            </div>
-            
-            {/* Grid de 2 colunas no modal - máximo 20 itens */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {[...selectedCard.adoms]
-                .sort((a, b) => b.total - a.total)
-                .slice(0, MAX_ITEMS)
-                .map((adom, idx) => (
-                <div key={idx} className="flex justify-between items-center p-3 bg-gray-700 rounded-lg border border-gray-600">
-                  <span className="text-sm md:text-base text-slate-200 font-medium truncate" title={adom.name}>
-                    {adom.name}
-                  </span>
-                  <span className="text-lg font-bold text-blue-300 bg-gray-800 px-3 py-2 rounded-lg min-w-16 text-center">
-                    {adom.total}
-                  </span>
-                </div>
-              ))}
-            </div>
-            
-            {/* Mostra contador no modal se houver mais itens */}
-            {selectedCard.adoms.length > MAX_ITEMS && (
-              <div className="text-center text-slate-400 text-xs pt-4 mt-3 border-t border-gray-600">
-                Mostrando {MAX_ITEMS} de {selectedCard.adoms.length} ADOMs
-              </div>
-            )}
-          </motion.div>
-        </motion.div>
-      )}
+      <AdomModal
+        isOpen={popupOpen}
+        onClose={() => setPopupOpen(false)}
+        selectedCard={selectedCard}
+      />
+
     </div>
   );
 };

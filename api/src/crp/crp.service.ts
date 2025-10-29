@@ -40,8 +40,6 @@ export class CrpService {
         password: fortiweb.password,
         vdom: adom
       };
-
-      // Converte o objeto JSON para string e depois para base64
       const token = Buffer.from(JSON.stringify(credentials)).toString('base64');
       return token;
     } catch (error) {
@@ -67,11 +65,7 @@ export class CrpService {
     for (const fw of this.fortiwebs) {
       const fortiwebResult = {
         name: fw.name,
-        adoms: [] as Array<{
-          name: string;
-          total: number;
-          error?: string;
-        }>,
+        adoms: [] as Array<{ name: string; total: number; error?: string }>,
         total: 0,
       };
 
@@ -84,13 +78,9 @@ export class CrpService {
 
         try {
           const url = `${fw.baseUrl}/api/v2.0/cmdb/server-policy/http-content-routing-policy`;
-
           const response = await fetch(url, {
             method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: token,
-            },
+            headers: { 'Content-Type': 'application/json', Authorization: token },
             agent: this.httpsAgent,
           });
 
@@ -98,8 +88,7 @@ export class CrpService {
           let adomTotal = 0;
 
           if (data && Array.isArray(data.results)) {
-
-            data.results.forEach((item, index) => {
+            data.results.forEach((item) => {
               let count = 0;
               if (Array.isArray(item['sz_content-routing-match-list'])) {
                 count = item['sz_content-routing-match-list'].length;
@@ -109,25 +98,16 @@ export class CrpService {
                 count = item['content-routing-match-list'].length;
               }
               adomTotal += count;
-
             });
           } else {
             console.warn(`  ⚠️ Dados inesperados para ${fw.name} [${adom}]`, data);
           }
 
-          fortiwebResult.adoms.push({
-            name: adom,
-            total: adomTotal,
-          });
-
+          fortiwebResult.adoms.push({ name: adom, total: adomTotal });
           fortiwebResult.total += adomTotal;
         } catch (error) {
           console.error(`  ❌ Erro ao buscar CRPs no FortiWeb ${fw.name} [${adom}]`, error);
-          fortiwebResult.adoms.push({
-            name: adom,
-            total: 0,
-            error: error.message,
-          });
+          fortiwebResult.adoms.push({ name: adom, total: 0, error: error.message });
         }
       }
 
@@ -137,5 +117,48 @@ export class CrpService {
     return resultados;
   }
 
+// Função para buscar CRPs de uma ADOM específica
+// Função para buscar CRPs de uma ADOM específica
+async getCrpsByAdom(adom: string): Promise<any> {
+  let username = '';
+  let password = '';
 
+  if (['LIMPURB','SMS','SEGOV','SEMIT','CASACIVIL','SECOM','SEMGE','PGMS','SEFAZ','SEDUR','SECIS','SECULT','SEMDEC','CGM','SEMUR','SPMJ'].includes(adom)) {
+    username = this.configService.get<string>('FORTIWEB2_USER');
+    password = this.configService.get<string>('FORTIWEB2_PASS');
+  } else if (['SEINFRA','SEMAN','SEMOP','SEMOB','TRANSALVADO','SEMPRE','SMED','FMLF','FGM','FCM','DESAL','GCMS','SALTUR','PMLF'].includes(adom)) {
+    username = this.configService.get<string>('FORTIWEB3_USER');
+    password = this.configService.get<string>('FORTIWEB3_PASS');
+  } else if (['COGEL','SACPB'].includes(adom)) {
+    username = this.configService.get<string>('FORTIWEB4_USER');
+    password = this.configService.get<string>('FORTIWEB4_PASS');
+  } else {
+    throw new Error(`ADOM "${adom}" não reconhecida`);
+  }
+
+  const fwUrl = this.configService.get<string>('FORTIWEB2_URL');
+
+  const token = Buffer.from(JSON.stringify({ username, password, vdom: adom })).toString('base64');
+
+  const response = await fetch(`${fwUrl}/api/v2.0/cmdb/server-policy/http-content-routing-policy`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json', Authorization: token },
+    agent: this.httpsAgent,
+  });
+
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    data = { results: [] };
+  }
+
+ return Array.isArray(data.results)
+  ? data.results.map((item: any) => ({
+      crp: item.name ? item.name.replace(/^CRP_/, '') + '.salvador.ba.gov.br' : '',
+      server: item["server-pool"] || '',
+    }))
+  : [];
+
+}
 }

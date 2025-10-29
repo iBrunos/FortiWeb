@@ -5,4 +5,7 @@ export declare class CrpController {
     getTotalContentRoutingPolicies(): Promise<{
         resultados: any;
     }>;
+    getCrpsByAdom(adom: string): Promise<{
+        results: any;
+    }>;
 }

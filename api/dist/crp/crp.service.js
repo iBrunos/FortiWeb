@@ -68,16 +68,13 @@ let CrpService = class CrpService {
                     const url = `${fw.baseUrl}/api/v2.0/cmdb/server-policy/http-content-routing-policy`;
                     const response = await (0, node_fetch_1.default)(url, {
                         method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            Authorization: token,
-                        },
+                        headers: { 'Content-Type': 'application/json', Authorization: token },
                         agent: this.httpsAgent,
                     });
                     const data = await response.json();
                     let adomTotal = 0;
                     if (data && Array.isArray(data.results)) {
-                        data.results.forEach((item, index) => {
+                        data.results.forEach((item) => {
                             let count = 0;
                             if (Array.isArray(item['sz_content-routing-match-list'])) {
                                 count = item['sz_content-routing-match-list'].length;
@@ -94,24 +91,56 @@ let CrpService = class CrpService {
                     else {
                         console.warn(`  ⚠️ Dados inesperados para ${fw.name} [${adom}]`, data);
                     }
-                    fortiwebResult.adoms.push({
-                        name: adom,
-                        total: adomTotal,
-                    });
+                    fortiwebResult.adoms.push({ name: adom, total: adomTotal });
                     fortiwebResult.total += adomTotal;
                 }
                 catch (error) {
                     console.error(`  ❌ Erro ao buscar CRPs no FortiWeb ${fw.name} [${adom}]`, error);
-                    fortiwebResult.adoms.push({
-                        name: adom,
-                        total: 0,
-                        error: error.message,
-                    });
+                    fortiwebResult.adoms.push({ name: adom, total: 0, error: error.message });
                 }
             }
             resultados.fortiwebs.push(fortiwebResult);
         }
         return resultados;
+    }
+    async getCrpsByAdom(adom) {
+        let username = '';
+        let password = '';
+        if (['LIMPURB', 'SMS', 'SEGOV', 'SEMIT', 'CASACIVIL', 'SECOM', 'SEMGE', 'PGMS', 'SEFAZ', 'SEDUR', 'SECIS', 'SECULT', 'SEMDEC', 'CGM', 'SEMUR', 'SPMJ'].includes(adom)) {
+            username = this.configService.get('FORTIWEB2_USER');
+            password = this.configService.get('FORTIWEB2_PASS');
+        }
+        else if (['SEINFRA', 'SEMAN', 'SEMOP', 'SEMOB', 'TRANSALVADO', 'SEMPRE', 'SMED', 'FMLF', 'FGM', 'FCM', 'DESAL', 'GCMS', 'SALTUR', 'PMLF'].includes(adom)) {
+            username = this.configService.get('FORTIWEB3_USER');
+            password = this.configService.get('FORTIWEB3_PASS');
+        }
+        else if (['COGEL', 'SACPB'].includes(adom)) {
+            username = this.configService.get('FORTIWEB4_USER');
+            password = this.configService.get('FORTIWEB4_PASS');
+        }
+        else {
+            throw new Error(`ADOM "${adom}" não reconhecida`);
+        }
+        const fwUrl = this.configService.get('FORTIWEB2_URL');
+        const token = Buffer.from(JSON.stringify({ username, password, vdom: adom })).toString('base64');
+        const response = await (0, node_fetch_1.default)(`${fwUrl}/api/v2.0/cmdb/server-policy/http-content-routing-policy`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json', Authorization: token },
+            agent: this.httpsAgent,
+        });
+        let data;
+        try {
+            data = await response.json();
+        }
+        catch (_a) {
+            data = { results: [] };
+        }
+        return Array.isArray(data.results)
+            ? data.results.map((item) => ({
+                crp: item.name ? item.name.replace(/^CRP_/, '') + '.salvador.ba.gov.br' : '',
+                server: item["server-pool"] || '',
+            }))
+            : [];
     }
 };
 exports.CrpService = CrpService;

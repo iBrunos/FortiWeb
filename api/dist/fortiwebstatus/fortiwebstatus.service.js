@@ -26,12 +26,10 @@ let FortiWebStatusService = class FortiWebStatusService {
         ];
     }
     async getFortiWebStatus() {
-        console.log('Iniciando requisição para múltiplos FortiWebs');
         const agent = new https.Agent({ rejectUnauthorized: false });
         const results = {};
         for (const fw of this.fortiwebs) {
             try {
-                console.log(`Consultando ${fw.name} em ${fw.url}`);
                 const response = await (0, node_fetch_1.default)(fw.url, {
                     method: 'GET',
                     headers: {
@@ -41,12 +39,10 @@ let FortiWebStatusService = class FortiWebStatusService {
                     },
                     agent,
                 });
-                console.log(`${fw.name} - Status da resposta:`, response.status);
                 if (!response.ok) {
                     throw new Error(`${fw.name} retornou erro HTTP ${response.status}`);
                 }
                 const body = await response.json();
-                console.log(`${fw.name} - Resposta JSON:`, JSON.stringify(body, null, 2));
                 if (body.results) {
                     results[fw.name] = {
                         cpu: body.results.cpu || 0,
@@ -84,7 +80,6 @@ let FortiWebStatusService = class FortiWebStatusService {
                 };
             }
         }
-        console.log('Resultados consolidados:', results);
         return results;
     }
 };
