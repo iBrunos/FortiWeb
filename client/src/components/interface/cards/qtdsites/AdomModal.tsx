@@ -160,8 +160,7 @@ const AdomModal: React.FC<AdomModalProps> = ({ isOpen, onClose, selectedCard }) 
                         <h4 className="text-white font-semibold mb-3 text-sm uppercase tracking-wide text-gray-400">
                             ADOMs ({filteredAdoms.length})
                         </h4>
-                        <div className="flex-1 overflow-y-auto pr-2 space-y-2
-          scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 hover:scrollbar-thumb-gray-500">
+                        <div className="flex-1 overflow-y-auto pr-2 space-y-2">
                             {filteredAdoms.length > 0 ? (
                                 filteredAdoms.map((adom, idx) => (
                                     <button
@@ -221,8 +220,7 @@ const AdomModal: React.FC<AdomModalProps> = ({ isOpen, onClose, selectedCard }) 
                             </div>
                         )}
 
-                        <div className="flex-1 overflow-y-auto pr-2
-          scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 hover:scrollbar-thumb-gray-500">
+                        <div className="flex-1 overflow-y-auto pr-2">
                             {loadingCrps ? (
                                 <div className="flex justify-center items-center py-8">
                                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
