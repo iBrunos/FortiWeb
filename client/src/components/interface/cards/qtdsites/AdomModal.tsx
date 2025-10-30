@@ -89,7 +89,7 @@ const AdomModal: React.FC<AdomModalProps> = ({ isOpen, onClose, selectedCard }) 
 
         try {
             const response = await fetch(
-                `http://localhost:8080/crp?adom=${encodeURIComponent(adom.name)}`
+                `https://fortiwebapi.salvador.ba.gov.br/crp?adom=${encodeURIComponent(adom.name)}`
             );
             const data = await response.json();
             setSelectedAdomCrps(data.results || []);
