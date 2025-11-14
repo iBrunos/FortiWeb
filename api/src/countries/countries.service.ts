@@ -16,6 +16,13 @@ export class CountriesService {
   private readonly fortiwebs: FortiwebAdomConfig[];
   private readonly httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
+  // -------------------------
+  // CACHE (dura 60 segundos)
+  // -------------------------
+  private cache: any = null;
+  private cacheTime = 0;
+  private readonly CACHE_TTL = 60000; // 60s
+
   constructor(private readonly configService: ConfigService) {
     this.fortiwebs = [1, 2, 3, 4]
       .map((index) => {
@@ -52,194 +59,52 @@ export class CountriesService {
   // Mapa de países -> código
   // -----------------------
   private countryCodeMap: Record<string, string> = {
-    "Afghanistan": "af",
-    "Albania": "al",
-    "Algeria": "dz",
-    "Andorra": "ad",
-    "Angola": "ao",
-    "Antigua and Barbuda": "ag",
-    "Argentina": "ar",
-    "Armenia": "am",
-    "Australia": "au",
-    "Austria": "at",
-    "Azerbaijan": "az",
-    "Bahamas": "bs",
-    "Bahrain": "bh",
-    "Bangladesh": "bd",
-    "Barbados": "bb",
-    "Belarus": "by",
-    "Belgium": "be",
-    "Belize": "bz",
-    "Benin": "bj",
-    "Bhutan": "bt",
-    "Bolivia": "bo",
-    "Bosnia and Herzegovina": "ba",
-    "Botswana": "bw",
-    "Brazil": "br",
-    "Brunei": "bn",
-    "Bulgaria": "bg",
-    "Burkina Faso": "bf",
-    "Burundi": "bi",
-    "Cabo Verde": "cv",
-    "Cambodia": "kh",
-    "Cameroon": "cm",
-    "Canada": "ca",
-    "Central African Republic": "cf",
-    "Chad": "td",
-    "Chile": "cl",
-    "China": "cn",
-    "Colombia": "co",
-    "Comoros": "km",
-    "Congo": "cg",
-    "Costa Rica": "cr",
-    "Croatia": "hr",
-    "Cuba": "cu",
-    "Cyprus": "cy",
-    "Czech Republic": "cz",
-    "Democratic Republic of the Congo": "cd",
-    "Denmark": "dk",
-    "Djibouti": "dj",
-    "Dominica": "dm",
-    "Dominican Republic": "do",
-    "Ecuador": "ec",
-    "Egypt": "eg",
-    "El Salvador": "sv",
-    "Equatorial Guinea": "gq",
-    "Eritrea": "er",
-    "Estonia": "ee",
-    "Eswatini": "sz",
-    "Ethiopia": "et",
-    "Fiji": "fj",
-    "Finland": "fi",
-    "France": "fr",
-    "Gabon": "ga",
-    "Gambia": "gm",
-    "Georgia": "ge",
-    "Germany": "de",
-    "Ghana": "gh",
-    "Greece": "gr",
-    "Grenada": "gd",
-    "Guatemala": "gt",
-    "Guinea": "gn",
-    "Guinea-Bissau": "gw",
-    "Guyana": "gy",
-    "Haiti": "ht",
-    "Honduras": "hn",
-    "Hungary": "hu",
-    "Iceland": "is",
-    "India": "in",
-    "Indonesia": "id",
-    "Iran": "ir",
-    "Iraq": "iq",
-    "Ireland": "ie",
-    "Israel": "il",
-    "Italy": "it",
-    "Jamaica": "jm",
-    "Japan": "jp",
-    "Jordan": "jo",
-    "Kazakhstan": "kz",
-    "Kenya": "ke",
-    "Kiribati": "ki",
-    "Kuwait": "kw",
-    "Kyrgyzstan": "kg",
-    "Laos": "la",
-    "Lao People's Democratic Republic": "la",
-    "Latvia": "lv",
-    "Lebanon": "lb",
-    "Lesotho": "ls",
-    "Liberia": "lr",
-    "Libya": "ly",
-    "Liechtenstein": "li",
-    "Lithuania": "lt",
-    "Luxembourg": "lu",
-    "Madagascar": "mg",
-    "Malawi": "mw",
-    "Malaysia": "my",
-    "Maldives": "mv",
-    "Mali": "ml",
-    "Malta": "mt",
-    "Mauritania": "mr",
-    "Mauritius": "mu",
-    "Mexico": "mx",
-    "Moldova": "md",
-    "Monaco": "mc",
-    "Mongolia": "mn",
-    "Montenegro": "me",
-    "Morocco": "ma",
-    "Mozambique": "mz",
-    "Myanmar": "mm",
-    "Namibia": "na",
-    "Nauru": "nr",
-    "Nepal": "np",
-    "Netherlands": "nl",
-    "New Zealand": "nz",
-    "Nicaragua": "ni",
-    "Niger": "ne",
-    "Nigeria": "ng",
-    "North Korea": "kp",
-    "North Macedonia": "mk",
-    "Norway": "no",
-    "Oman": "om",
-    "Pakistan": "pk",
-    "Palau": "pw",
-    "Panama": "pa",
-    "Papua New Guinea": "pg",
-    "Paraguay": "py",
-    "Peru": "pe",
-    "Philippines": "ph",
-    "Poland": "pl",
-    "Portugal": "pt",
-    "Qatar": "qa",
-    "Romania": "ro",
-    "Russia": "ru",
-    "Rwanda": "rw",
-    "Saudi Arabia": "sa",
-    "Senegal": "sn",
-    "Serbia": "rs",
-    "Seychelles": "sc",
-    "Sierra Leone": "sl",
-    "Singapore": "sg",
-    "Slovakia": "sk",
-    "Slovenia": "si",
-    "Solomon Islands": "sb",
-    "Somalia": "so",
-    "South Africa": "za",
-    "South Korea": "kr",
-    "Republic Of Korea": "kr",
-    "South Sudan": "ss",
-    "Spain": "es",
-    "Sri Lanka": "lk",
-    "Sudan": "sd",
-    "Suriname": "sr",
-    "Sweden": "se",
-    "Switzerland": "ch",
-    "Syria": "sy",
-    "Tajikistan": "tj",
-    "Tanzania": "tz",
-    "Thailand": "th",
-    "Togo": "tg",
-    "Tonga": "to",
-    "Trinidad and Tobago": "tt",
-    "Tunisia": "tn",
-    "Turkey": "tr",
-    "Turkmenistan": "tm",
-    "Tuvalu": "tv",
-    "Uganda": "ug",
-    "Ukraine": "ua",
-    "United Arab Emirates": "ae",
-    "United Kingdom": "gb",
-    "United States": "us",
-    "Uruguay": "uy",
-    "Uzbekistan": "uz",
-    "Vanuatu": "vu",
-    "Vatican City": "va",
-    "Venezuela": "ve",
-    "Vietnam": "vn",
-    "Yemen": "ye",
-    "Zambia": "zm",
-    "Zimbabwe": "zw",
-    "Taiwan": "tw",
-    "Macao": "mo"
+    "Afghanistan": "af", "Albania": "al", "Algeria": "dz", "Andorra": "ad", "Angola": "ao",
+    "Antigua and Barbuda": "ag", "Argentina": "ar", "Armenia": "am", "Australia": "au",
+    "Austria": "at", "Azerbaijan": "az", "Bahamas": "bs", "Bahrain": "bh", "Bangladesh": "bd",
+    "Barbados": "bb", "Belarus": "by", "Belgium": "be", "Belize": "bz", "Benin": "bj",
+    "Bhutan": "bt", "Bolivia": "bo", "Bosnia and Herzegovina": "ba", "Botswana": "bw",
+    "Brazil": "br", "Brunei": "bn", "Bulgaria": "bg", "Burkina Faso": "bf", "Burundi": "bi",
+    "Cabo Verde": "cv", "Cambodia": "kh", "Cameroon": "cm", "Canada": "ca",
+    "Central African Republic": "cf", "Chad": "td", "Chile": "cl", "China": "cn",
+    "Colombia": "co", "Comoros": "km", "Congo": "cg", "Costa Rica": "cr",
+    "Croatia": "hr", "Cuba": "cu", "Cyprus": "cy", "Czech Republic": "cz",
+    "Democratic Republic of the Congo": "cd", "Denmark": "dk", "Djibouti": "dj",
+    "Dominica": "dm", "Dominican Republic": "do", "Ecuador": "ec", "Egypt": "eg",
+    "El Salvador": "sv", "Equatorial Guinea": "gq", "Eritrea": "er", "Estonia": "ee",
+    "Eswatini": "sz", "Ethiopia": "et", "Fiji": "fj", "Finland": "fi", "France": "fr",
+    "Gabon": "ga", "Gambia": "gm", "Georgia": "ge", "Germany": "de", "Ghana": "gh",
+    "Greece": "gr", "Grenada": "gd", "Guatemala": "gt", "Guinea": "gn",
+    "Guinea-Bissau": "gw", "Guyana": "gy", "Haiti": "ht", "Honduras": "hn",
+    "Hungary": "hu", "Iceland": "is", "India": "in", "Indonesia": "id",
+    "Iran": "ir", "Iraq": "iq", "Ireland": "ie", "Israel": "il", "Italy": "it",
+    "Jamaica": "jm", "Japan": "jp", "Jordan": "jo", "Kazakhstan": "kz",
+    "Kenya": "ke", "Kiribati": "ki", "Kuwait": "kw", "Kyrgyzstan": "kg",
+    "Laos": "la", "Latvia": "lv", "Lebanon": "lb", "Lesotho": "ls",
+    "Liberia": "lr", "Libya": "ly", "Liechtenstein": "li", "Lithuania": "lt",
+    "Luxembourg": "lu", "Madagascar": "mg", "Malawi": "mw", "Malaysia": "my",
+    "Maldives": "mv", "Mali": "ml", "Malta": "mt", "Mauritania": "mr",
+    "Mauritius": "mu", "Mexico": "mx", "Moldova": "md", "Monaco": "mc",
+    "Mongolia": "mn", "Montenegro": "me", "Morocco": "ma", "Mozambique": "mz",
+    "Myanmar": "mm", "Namibia": "na", "Nauru": "nr", "Nepal": "np",
+    "Netherlands": "nl", "New Zealand": "nz", "Nicaragua": "ni", "Niger": "ne",
+    "Nigeria": "ng", "North Korea": "kp", "North Macedonia": "mk", "Norway": "no",
+    "Oman": "om", "Pakistan": "pk", "Palau": "pw", "Panama": "pa",
+    "Papua New Guinea": "pg", "Paraguay": "py", "Peru": "pe", "Philippines": "ph",
+    "Poland": "pl", "Portugal": "pt", "Qatar": "qa", "Romania": "ro",
+    "Russia": "ru", "Rwanda": "rw", "Saudi Arabia": "sa", "Senegal": "sn",
+    "Serbia": "rs", "Seychelles": "sc", "Sierra Leone": "sl", "Singapore": "sg",
+    "Slovakia": "sk", "Slovenia": "si", "Solomon Islands": "sb", "Somalia": "so",
+    "South Africa": "za", "South Korea": "kr", "South Sudan": "ss", "Spain": "es",
+    "Sri Lanka": "lk", "Sudan": "sd", "Suriname": "sr", "Sweden": "se",
+    "Switzerland": "ch", "Syria": "sy", "Tajikistan": "tj", "Tanzania": "tz",
+    "Thailand": "th", "Togo": "tg", "Tonga": "to", "Trinidad and Tobago": "tt",
+    "Tunisia": "tn", "Turkey": "tr", "Turkmenistan": "tm", "Tuvalu": "tv",
+    "Uganda": "ug", "Ukraine": "ua", "United Arab Emirates": "ae",
+    "United Kingdom": "gb", "United States": "us", "Uruguay": "uy",
+    "Uzbekistan": "uz", "Vanuatu": "vu", "Vatican City": "va",
+    "Venezuela": "ve", "Vietnam": "vn", "Yemen": "ye", "Zambia": "zm",
+    "Zimbabwe": "zw", "Taiwan": "tw", "Macao": "mo"
   };
 
   // -------------------------------------------
@@ -265,7 +130,7 @@ export class CountriesService {
       });
 
       if (!response.ok) {
-        console.error(`❌ Erro no FortiWeb ${fortiweb.name} [${adom}]:`, response.status);
+        console.error(`❌ Erro no FortiWeb ${fortiweb.name} [${adom}]: ${response.status}`);
         return [];
       }
 
@@ -292,6 +157,14 @@ export class CountriesService {
   async getThreatsByCountry(): Promise<
     { country: string; count: number; flag: string }[]
   > {
+
+    const now = Date.now();
+
+    // -------- CACHE --------
+    if (this.cache && now - this.cacheTime < this.CACHE_TTL) {
+      return this.cache;
+    }
+
     const aggregated: Record<string, number> = {};
 
     for (const fw of this.fortiwebs) {
@@ -305,14 +178,20 @@ export class CountriesService {
       }
     }
 
-    return Object.entries(aggregated)
+    // Resultado final
+    const result = Object.entries(aggregated)
       .map(([country, count]) => {
         const code = this.countryCodeMap[country] || 'unknown';
         const flag = `https://flagcdn.com/w40/${code}.png`;
 
         return { country, count, flag };
       })
-      .sort((a, b) => b.count - a.count); // 🔥 agora está decrescente
-  }
+      .sort((a, b) => b.count - a.count);
 
+    // Guarda no cache
+    this.cache = result;
+    this.cacheTime = now;
+
+    return result;
+  }
 }

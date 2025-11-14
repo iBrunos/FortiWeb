@@ -42,8 +42,8 @@ const CountriesTable: React.FC = () => {
     return () => clearInterval(interval);
   }, [intervalTime]);
 
-  const intervals = [10000, 30000, 60000, 300000, 3600000];
-  const intervalLabels = ["10 Segundos", "30 Segundos", "1 Minuto", "5 Minutos", "1 Hora"];
+  const intervals = [300000, 3600000];
+  const intervalLabels = ["5 Minutos", "1 Hora"];
 
   const totalPages = Math.ceil(countryData.length / itemsPerPage);
   const paginatedData = countryData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
