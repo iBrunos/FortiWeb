@@ -5,15 +5,19 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CountriesService = void 0;
 const common_1 = require("@nestjs/common");
+const config_1 = require("@nestjs/config");
 const node_fetch_1 = require("node-fetch");
 const https = require("https");
 let CountriesService = class CountriesService {
-    constructor() {
-        this.API_URL = 'https://172.30.1.254/api/v2.0/system/status.monitor?interval=43200';
-        this.AUTH_TOKEN = "eyJ1c2VybmFtZSI6ImFwaSIsInBhc3N3b3JkIjoiQXBpQDEyMzQ1NiIsInZkb20iOiJyb290In0K";
+    constructor(configService) {
+        this.configService = configService;
+        this.httpsAgent = new https.Agent({ rejectUnauthorized: false });
         this.countryCodeMap = {
             "Afghanistan": "af",
             "Albania": "al",
@@ -204,45 +208,82 @@ let CountriesService = class CountriesService {
             "Taiwan": "tw",
             "Macao": "mo"
         };
+        this.fortiwebs = [1, 2, 3, 4]
+            .map((index) => {
+            var _a;
+            const name = this.configService.get(`FORTIWEB${index}_NAME`);
+            const baseUrl = this.configService.get(`FORTIWEB${index}_URL`);
+            const username = this.configService.get(`FORTIWEB${index}_USER`);
+            const password = this.configService.get(`FORTIWEB${index}_PASS`);
+            const adoms = ((_a = this.configService.get(`FORTIWEB${index}_ADOMS`)) === null || _a === void 0 ? void 0 : _a.split(',')) ||
+                [];
+            if (name && baseUrl && username && password && adoms.length) {
+                return { name, baseUrl, username, password, adoms };
+            }
+            return null;
+        })
+            .filter((f) => f !== null);
     }
-    async getThreatsByCountry() {
+    generateToken(fortiweb, adom) {
+        return Buffer.from(JSON.stringify({
+            username: fortiweb.username,
+            password: fortiweb.password,
+            vdom: adom,
+        })).toString('base64');
+    }
+    async fetchCountries(fortiweb, adom) {
+        var _a, _b;
+        const token = this.generateToken(fortiweb, adom);
+        const url = `${fortiweb.baseUrl}/api/v2.0/system/status.monitor?vdom=${adom}&interval=43200`;
         try {
-            const response = await (0, node_fetch_1.default)(this.API_URL, {
+            const response = await (0, node_fetch_1.default)(url, {
                 method: 'GET',
                 headers: {
-                    Authorization: this.AUTH_TOKEN,
+                    Authorization: token,
                     'Content-Type': 'application/json',
                     Accept: 'application/json',
                 },
-                agent: new https.Agent({
-                    rejectUnauthorized: false,
-                }),
+                agent: this.httpsAgent,
             });
             if (!response.ok) {
-                throw new Error(`Erro ao buscar dados: ${response.status}`);
+                console.error(`❌ Erro no FortiWeb ${fortiweb.name} [${adom}]:`, response.status);
+                return [];
             }
             const body = await response.json();
-            if (body.results && body.results.threat_by_countries) {
-                return body.results.threat_by_countries.map((item) => {
-                    const countryName = item.country || "Desconhecido";
-                    const countryCode = this.countryCodeMap[countryName] || "unknown";
-                    const flagUrl = `https://flagcdn.com/w40/${countryCode}.png`;
-                    return {
-                        country: countryName,
-                        count: parseInt(item.count, 10) || 0,
-                        flag: flagUrl,
-                    };
-                });
+            return (((_b = (_a = body === null || body === void 0 ? void 0 : body.results) === null || _a === void 0 ? void 0 : _a.threat_by_countries) === null || _b === void 0 ? void 0 : _b.map((item) => ({
+                country: item.country || 'Desconhecido',
+                count: parseInt(item.count, 10) || 0,
+            }))) || []);
+        }
+        catch (err) {
+            console.error(`❌ Erro ao buscar países no FortiWeb ${fortiweb.name} [${adom}]:`, err);
+            return [];
+        }
+    }
+    async getThreatsByCountry() {
+        const aggregated = {};
+        for (const fw of this.fortiwebs) {
+            for (const adom of fw.adoms) {
+                const countries = await this.fetchCountries(fw, adom);
+                for (const item of countries) {
+                    if (!aggregated[item.country])
+                        aggregated[item.country] = 0;
+                    aggregated[item.country] += item.count;
+                }
             }
-            throw new Error('A resposta da API não contém os dados esperados.');
         }
-        catch (error) {
-            throw new Error(`Erro ao fazer a requisição: ${error.message}`);
-        }
+        return Object.entries(aggregated)
+            .map(([country, count]) => {
+            const code = this.countryCodeMap[country] || 'unknown';
+            const flag = `https://flagcdn.com/w40/${code}.png`;
+            return { country, count, flag };
+        })
+            .sort((a, b) => b.count - a.count);
     }
 };
 exports.CountriesService = CountriesService;
 exports.CountriesService = CountriesService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [config_1.ConfigService])
 ], CountriesService);
 //# sourceMappingURL=countries.service.js.map

@@ -1,43 +1,115 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import fetch from 'node-fetch';
 import * as https from 'https';
 
+interface FortiwebAdomConfig {
+  name: string;
+  baseUrl: string;
+  username: string;
+  password: string;
+  adoms: string[];
+}
+
 @Injectable()
 export class AttackTypeService {
-  private readonly API_URL = 'https://172.30.1.254/api/v2.0/system/status.monitor';
-  private readonly AUTH_TOKEN = "eyJ1c2VybmFtZSI6ImFwaSIsInBhc3N3b3JkIjoiQXBpQDEyMzQ1NiIsInZkb20iOiJyb290In0K";
+  private readonly fortiwebs: FortiwebAdomConfig[];
+  private readonly httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
-  // Função que busca os dados de tipos de ataques do FortiWeb
-  async getAttackTypes(): Promise<{ type: string; count: number }[]> {
+  constructor(private readonly configService: ConfigService) {
+    this.fortiwebs = [1, 2, 3, 4]
+      .map((index) => {
+        const name = this.configService.get<string>(`FORTIWEB${index}_NAME`);
+        const baseUrl = this.configService.get<string>(`FORTIWEB${index}_URL`);
+        const username = this.configService.get<string>(`FORTIWEB${index}_USER`);
+        const password = this.configService.get<string>(`FORTIWEB${index}_PASS`);
+        const adoms = this.configService
+          .get<string>(`FORTIWEB${index}_ADOMS`)
+          ?.split(',') || [];
+
+        if (name && baseUrl && username && password && adoms.length > 0) {
+          return { name, baseUrl, username, password, adoms };
+        }
+
+        return null;
+      })
+      .filter((f): f is FortiwebAdomConfig => f !== null);
+  }
+
+  // ------------------------------
+  // Gera token por FortiWeb + ADOM
+  // ------------------------------
+  private generateToken(fortiweb: FortiwebAdomConfig, adom: string): string {
+    const creds = {
+      username: fortiweb.username,
+      password: fortiweb.password,
+      vdom: adom,
+    };
+    return Buffer.from(JSON.stringify(creds)).toString('base64');
+  }
+
+  // -----------------------------------------
+  // Busca tipos de ataque de um ADOM específico
+  // -----------------------------------------
+  private async fetchAttackTypes(
+    fortiweb: FortiwebAdomConfig,
+    adom: string,
+  ): Promise<{ type: string; count: number }[]> {
+    const token = this.generateToken(fortiweb, adom);
+
+    const url = `${fortiweb.baseUrl}/api/v2.0/system/status.monitor?vdom=${adom}`;
+
     try {
-      const response = await fetch(this.API_URL, {
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
-          Authorization: this.AUTH_TOKEN,
+          Authorization: token,
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-        agent: new https.Agent({
-          rejectUnauthorized: false, // Ignora certificados SSL inválidos
-        }),
+        agent: this.httpsAgent,
       });
 
       if (!response.ok) {
-        throw new Error(`Erro ao buscar dados: ${response.status}`);
+        console.error(`❌ Erro no FortiWeb ${fortiweb.name} [${adom}]: ${response.status}`);
+        return [];
       }
 
       const body = await response.json();
 
-      if (body.results && body.results.threat_by_attack_type) {
-        return body.results.threat_by_attack_type.map((item: any) => ({
-          type: item.type || "Desconhecido",
-          count: parseInt(item.count, 10) || 0,
-        }));
-      }
+      const list = body?.results?.threat_by_attack_type ?? [];
 
-      throw new Error('A resposta da API não contém os dados esperados.');
+      return list.map((item: any) => ({
+        type: item.type || 'Desconhecido',
+        count: parseInt(item.count, 10) || 0,
+      }));
     } catch (error) {
-      throw new Error(`Erro ao fazer a requisição: ${error.message}`);
+      console.error(`❌ Erro ao buscar ADOM ${adom} no ${fortiweb.name}:`, error);
+      return [];
     }
+  }
+
+  // -----------------------------------------------------
+  // FUNÇÃO PRINCIPAL → percorre tudo e soma os resultados
+  // -----------------------------------------------------
+  async getAttackTypes(): Promise<{ type: string; count: number }[]> {
+    const aggregated: Record<string, number> = {};
+
+    for (const fw of this.fortiwebs) {
+      for (const adom of fw.adoms) {
+        const attacks = await this.fetchAttackTypes(fw, adom);
+
+        for (const item of attacks) {
+          if (!aggregated[item.type]) aggregated[item.type] = 0;
+          aggregated[item.type] += item.count;
+        }
+      }
+    }
+
+    // Converte para array final
+    return Object.entries(aggregated).map(([type, count]) => ({
+      type,
+      count,
+    }));
   }
 }

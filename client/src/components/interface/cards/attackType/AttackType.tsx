@@ -100,7 +100,7 @@ export default function AttackType() {
           <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-md">
             <div className="flex flex-col items-center gap-6">
               {/* Gráfico de Rosca */}
-              <div className="w-full h-48 md:h-64 lg:h-72">
+              <div className="w-full h-64 md:h-80 lg:h-[420px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -109,10 +109,9 @@ export default function AttackType() {
                       nameKey="type"
                       cx="50%"
                       cy="50%"
-                      innerRadius={40}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      paddingAngle={5}
+                      innerRadius={70}   // borda mais grossa
+                      outerRadius={140}  // bola MUITO maior
+                      paddingAngle={4}
                       label
                     >
                       {data.map((_, index) => (
