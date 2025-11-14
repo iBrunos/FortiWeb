@@ -98,7 +98,7 @@ export default function AttackType() {
         <div className="flex flex-col gap-4 md:gap-6">
           {/* Gráfico + Legenda */}
           <div className="bg-gray-800 p-4 md:p-6 rounded-lg shadow-md">
-            <div className="flex flex-col items-center gap-6">
+            <div className="flex flex-col items-center">
               {/* Gráfico de Rosca */}
               <div className="w-full h-64 md:h-80 lg:h-[420px]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -125,7 +125,7 @@ export default function AttackType() {
 
               {/* Legenda - Agora abaixo do gráfico */}
               <div className="w-full">
-                <h3 className="text-lg font-semibold mb-4 text-center">Legenda</h3>
+                <h3 className="text-lg font-semibold mb-2 text-center">Legenda</h3>
                 <div className="flex flex-wrap justify-center gap-3">
                   {data.map((attack, index) => (
                     <div key={index} className="flex items-center gap-2 min-w-[120px]">
